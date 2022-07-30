@@ -17,7 +17,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./build
+          path: ./dist
           retention-days: 1
   deploy:
     needs: build
