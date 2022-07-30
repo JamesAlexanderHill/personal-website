@@ -2,11 +2,15 @@
   "name": "personal-website",
   "version": "1.0.0",
   "description": "A personal website",
-  "main": "index.js",
-  "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "autoprefixer": "^10.4.8",
+    "parcel": "^2.6.2",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.1.7"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch": "parcel ./src/index.html",
+    "build": "parcel build src/index.html"
   },
   "repository": {
     "type": "git",
