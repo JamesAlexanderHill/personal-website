@@ -1,0 +1,25 @@
+{
+  "name": "personal-website",
+  "version": "1.0.0",
+  "description": "A personal website",
+  "devDependencies": {
+    "autoprefixer": "^10.4.8",
+    "parcel": "^2.6.2",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.1.7"
+  },
+  "scripts": {
+    "watch": "parcel ./src/index.html",
+    "build": "parcel build src/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JamesAlexanderHill/personal-website.git"
+  },
+  "author": "James Hill",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JamesAlexanderHill/personal-website/issues"
+  },
+  "homepage": "https://github.com/JamesAlexanderHill/personal-website#readme"
+}
