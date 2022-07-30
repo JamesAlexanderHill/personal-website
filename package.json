@@ -1,0 +1,21 @@
+{
+  "name": "personal-website",
+  "version": "1.0.0",
+  "description": "A personal website",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JamesAlexanderHill/personal-website.git"
+  },
+  "author": "James Hill",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JamesAlexanderHill/personal-website/issues"
+  },
+  "homepage": "https://github.com/JamesAlexanderHill/personal-website#readme"
+}
