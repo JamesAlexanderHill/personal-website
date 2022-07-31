@@ -1,3 +1,3 @@
-console.log('JS Load')
+console.log('JS Load changed')
 
 document.addEventListener('DOMContentLoaded', () => console.log('DOMContentLoaded'));
