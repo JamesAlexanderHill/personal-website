@@ -5,20 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="./index.css" rel="stylesheet">
   <script defer src="./index.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@300;400;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="h-screen relative bg-slate-900 text-gray-300">
-  <include src="src/components/header.html"></include>
-  <section class="h-full flex flex-col justify-center gap-4 text-center">
-    <h1 class="text-3xl font-bold">James Hill</h1>
-    <p>Solution Architect</p>
-  </section>
-  <aside class="absolute left-0 top-0 flex flex-col gap-4">
-    <a href="https://github.com/JamesAlexanderHill">
-      <icon src="github.svg" class="w-6 h-6"></icon>
-      <span class="sr-only">Github</span>
+<body class="font-body h-screen flex flex-col bg-slate-900 text-gray-300">
+  <!-- <include src="src/components/header.html"></include> -->
+  <main class="flex-grow">
+    <section class="h-full flex flex-col justify-center gap-4 text-center">
+      <h1 class="font-heading uppercase text-4xl font-bold animate-fade-in-up animation-delay-200">James Hill</h1>
+      <p class="animate-fade-in-up animation-delay-600">Solution Architect</p>
+    </section>
+  </main>
+  <aside class="fixed right-4 bottom-4 flex flex-col gap-2">
+    <a class="quick-link animation-delay-1000" href="https://github.com/JamesAlexanderHill" target="_blank" rel="noopener noreferrer nofollow">
+      <icon src="github.svg" class="w-full fill-current"></icon>
+      <span class="sr-only">Visit my Github</span>
     </a>
-    <a href="https://www.buymeacoffee.com/jamesahill">Coffee SVG<span class="sr-only">Buy me a coffee</span></a>
-    <a href="mailto:enquiry@jamesalexanderhill.com">email SVG<span class="sr-only">Send me an email</span><a>
+    <a class="quick-link animation-delay-1500 " href="https://www.buymeacoffee.com/jamesahill" target="_blank" rel="noopener noreferrer nofollow">
+      <icon src="coffee.svg" class="w-full fill-current"></icon>
+      <span class="sr-only">Buy me a coffee</span>
+    </a>
+    <a class="quick-link animation-delay-2000" href="mailto:enquiry@jamesalexanderhill.com">
+      <icon src="at.svg" class="w-full fill-current"></icon>
+      <span class="sr-only">Send me an email</span>
+
+    <a>
   </aside>
 </body>
 </html> 

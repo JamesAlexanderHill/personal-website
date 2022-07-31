@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .quick-link {
+        @apply w-8 h-8 p-1 text-gray-300 animate-fade-in-up hover:text-white hover:scale-110;
+    }
+}
