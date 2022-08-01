@@ -2,7 +2,7 @@
   "plugins": {
     "posthtml-include": {},
     "posthtml-inline-svg": {
-      "cwd": "./src/assets/svg"
+      "cwd": "./src/assets/icons/svg"
     }
   }
 }

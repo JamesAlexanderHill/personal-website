@@ -1,35 +1,28 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>James Hill</title>
+  <meta name="description" content="A Web Engineer's space to share cool stuff to do with the web (or whatever I am interested in at the time)."/>
+  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="./manifest.json">
 
-  <link href="./index.css" rel="stylesheet">
-  <script defer src="./index.js"></script>
+  <link rel="preload" href="./index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="./index.css"></noscript>
+  <script defer src="./index.js" type="module"></script>
+  <style>
+    @import "./index-critical.scss";
+  </style>
 </head>
-<body class="font-body h-screen flex flex-col bg-slate-900 text-gray-300">
-  <!-- <include src="src/components/header.html"></include> -->
-  <main class="flex-grow">
-    <section class="h-full flex flex-col justify-center gap-4 text-center">
+<body>
+  <div class="above-the-fold">
+    <section>
       <h1 class="font-heading uppercase text-4xl font-bold animate-fade-in-up animation-delay-200">James Hill</h1>
-      <p class="animate-fade-in-up animation-delay-600">Solution Architect</p>
+      <p id="titleContainer" class="animate-fade-in-up animation-delay-600">Solution Architect</p>
     </section>
-  </main>
-  <aside class="fixed right-4 bottom-4 flex flex-col gap-2">
-    <a class="quick-link animation-delay-1000" href="https://github.com/JamesAlexanderHill" target="_blank" rel="noopener noreferrer nofollow">
-      <icon src="github.svg" class="icon"></icon>
-      <span class="sr-only">Visit my Github</span>
-    </a>
-    <a class="quick-link animation-delay-1500 " href="https://www.buymeacoffee.com/jamesahill" target="_blank" rel="noopener noreferrer nofollow">
-      <icon src="coffee.svg" class="icon"></icon>
-      <span class="sr-only">Buy me a coffee</span>
-    </a>
-    <a class="quick-link animation-delay-2000" href="mailto:enquiry@jamesalexanderhill.com">
-      <icon src="at.svg" class="icon"></icon>
-      <span class="sr-only">Send me an email</span>
-
-    <a>
-  </aside>
+    <include src="src/components/quick-links.html"></include>
+  </div>
+  <!-- <main>Content goes here</main> -->
 </body>
 </html> 
