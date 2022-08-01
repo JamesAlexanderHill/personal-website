@@ -177,7 +177,7 @@
 
 @layer components {
     .quick-link {
-        @apply w-8 h-8 p-1 text-gray-300 animate-fade-in-up hover:text-white hover:scale-110;
+        @apply w-8 h-8 p-1 text-gray-300 animate-fade-in-right hover:text-white hover:scale-110;
     }
     .icon {
         @apply w-full fill-current;

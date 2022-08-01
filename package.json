@@ -3,6 +3,9 @@
   "version": "1.1.0",
   "description": "A personal website",
   "devDependencies": {
+    "@parcel/packager-raw-url": "^2.6.2",
+    "@parcel/transformer-sass": "^2.6.2",
+    "@parcel/transformer-webmanifest": "^2.6.2",
     "parcel": "^2.6.2",
     "postcss": "^8.4.14",
     "posthtml": "^0.16.6",
@@ -24,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/JamesAlexanderHill/personal-website/issues"
   },
-  "homepage": "https://github.com/JamesAlexanderHill/personal-website#readme"
+  "homepage": "https://github.com/JamesAlexanderHill/personal-website#readme",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
 }
