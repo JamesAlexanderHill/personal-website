@@ -27,8 +27,5 @@
   "bugs": {
     "url": "https://github.com/JamesAlexanderHill/personal-website/issues"
   },
-  "homepage": "https://github.com/JamesAlexanderHill/personal-website#readme",
-  "dependencies": {
-    "lodash": "^4.17.21"
-  }
+  "homepage": "https://github.com/JamesAlexanderHill/personal-website#readme"
 }
