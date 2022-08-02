@@ -1,6 +1,6 @@
 {
   "name": "personal-website",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "A personal website",
   "devDependencies": {
     "@parcel/packager-raw-url": "^2.6.2",
