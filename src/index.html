@@ -8,14 +8,21 @@
   <meta name="theme-color" content="#0f172a">
   <link rel="manifest" href="./manifest.json">
 
+  <!-- preconnect, preload, prefetch -->
+  <link rel="preconnect" src="https://www.googletagmanager.com/gtm.js">
+  <link rel="preconnect" src="https://www.googletagmanager.com/gtag/js">
+
+  <include src="src/components/google-tag-manager-head.html"></include>
+
   <link rel="preload" href="./index.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="./index.css"></noscript>
-  <script defer src="./index.js" type="module"></script>
+  <script src="./index.js" type="module" defer></script>
   <style>
     @import "./index-critical.scss";
   </style>
 </head>
 <body>
+  <include src="src/components/google-tag-manager-body.html"></include>
   <div class="above-the-fold">
     <section>
       <h1 class="font-heading uppercase text-4xl font-bold animate-fade-in-up animation-delay-200">James Hill</h1>
@@ -23,6 +30,6 @@
     </section>
     <include src="src/components/quick-links.html"></include>
   </div>
-  <!-- <main>Content goes here</main> -->
+  <!-- <main class="h-screen">Content goes here</main> -->
 </body>
 </html> 
