@@ -4,9 +4,11 @@
   "description": "A personal website",
   "devDependencies": {
     "@parcel/packager-raw-url": "^2.6.2",
+    "@parcel/packager-xml": "^2.6.2",
     "@parcel/transformer-sass": "^2.6.2",
     "@parcel/transformer-webmanifest": "^2.6.2",
     "parcel": "^2.6.2",
+    "parcel-config-pwa-manifest": "^0.1.2",
     "parcel-reporter-static-files-copy": "^1.3.4",
     "postcss": "^8.4.14",
     "posthtml": "^0.16.6",
@@ -29,5 +31,22 @@
   "bugs": {
     "url": "https://github.com/JamesAlexanderHill/personal-website/issues"
   },
-  "homepage": "https://github.com/JamesAlexanderHill/personal-website#readme"
+  "homepage": "https://github.com/JamesAlexanderHill/personal-website#readme",
+  "pwaManifest": {
+    "name": "James Alexander Hill - portfolio, devnotes, resources",
+    "shortName": "James Hill",
+    "startURL": "/",
+    "description": "A Web Engineer's space to share cool stuff to do with the web (or whatever I am interested in at the time).",
+    "theme": "#0f172a",
+    "display": "fullscreen",
+    "generateIconOptions": {
+      "baseIcon": "./src/assets/icons/svg/logo.svg",
+      "sizes": [
+        192,
+        384,
+        512
+      ],
+      "genFavicons": true
+    }
+  }
 }
