@@ -1,1 +1,2 @@
+Sitemap: https://jamesalexanderhill.com/sitemap.txt
 User-agent: * Disallow:
