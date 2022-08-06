@@ -1,7 +1,15 @@
 # personal-website
 A personal website
 
-## New Release
+# Workflows
+## Linting
+All Pull Requests will check for changes to ~~HTML,~~ CSS ~~and JS~~ files in the `/src` directory and run the relevant linting workflows.
+If you want to skip a specific linting workflow you can add the following strings to your commit message: `[skip actions]`.
+
+If you would like to automatically fix linting issues on your local machine you can run `npm run lint-fix`.
+
+
+## New Release (Manual)
 1. Merge PR with changes
 2. Update local main with `git pull`
 3. Bump version + tag with `npm  version ${type}` where type = patch, minor, major
