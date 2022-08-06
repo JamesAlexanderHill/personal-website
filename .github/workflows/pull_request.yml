@@ -1,0 +1,17 @@
+name: lint-source-code
+
+on:
+  pull_request:
+    types: [synchronize]
+
+jobs:
+  linting:
+    if: ${{ github.event.label.name != 'no-linting' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint files
+        run: npm run lint
