@@ -23,7 +23,9 @@
   },
   "scripts": {
     "lint": "run-p lint:*",
+    "lint-fix": "run-p lint-fix:*",
     "lint:css": "stylelint 'src/**/*.css'",
+    "lint-fix:css": "stylelint 'src/**/*.css' --fix",
     "watch": "parcel ./src/index.html",
     "build": "parcel build src/index.html"
   },
