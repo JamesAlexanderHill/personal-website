@@ -1,4 +1,4 @@
-name: Lint-source-code
+name: lint-source-code
 
 on:
   pull_request:
