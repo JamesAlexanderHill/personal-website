@@ -5,7 +5,7 @@ on:
     types: [synchronize]
 
 jobs:
-  css-linting:
+  linting:
     if: ${{ github.event.label.name != 'no-linting' }}
     runs-on: ubuntu-latest
     steps:
@@ -14,4 +14,4 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Lint files
-        run: npm run lint:css
+        run: npm run lint
