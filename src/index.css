@@ -1,194 +1,214 @@
+/* stylelint-disable property-no-unknown */
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-    /* Variable Fonts */
-    @supports (font-variation-settings: normal) {
-        @font-face {
-            font-family: "Montserrat";
-            font-style: normal;
-            font-weight: 100 900;
-            font-display: swap;
-            src: url("assets/fonts/Montserrat/Montserrat-VariableFont_wght.ttf");
-            font-named-instance: "Regular";
-        }
-    
-        @font-face {
-            font-family: "Montserrat";
-            font-style: italic;
-            font-weight: 100 900;
-            font-display: swap;
-            src: url("assets/fonts/Montserrat/Montserrat-Italic-VariableFont_wght.ttf");
-            font-named-instance: "Italic";
-        }
-
-        @font-face {
-            font-family: "Inconsolata";
-            font-style: normal;
-            font-weight: 100 900;
-            font-display: swap;
-            src: url("assets/fonts/Inconsolata/Inconsolata-VariableFont_wdth,wght.ttf");
-            font-named-instance: "Regular";
-        }
+  /* Variable Fonts */
+  @supports (font-variation-settings: normal) {
+    @font-face {
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url("assets/fonts/Montserrat/Montserrat-VariableFont_wght.ttf");
+      font-named-instance: regular;
     }
-    
-    /* Static Fonts */
-    @supports not (font-variation-settings: normal) {
-        @font-face {
-            font-named-instance: Thin;
-            font-display: swap;
-            font-family: "Montserrat";
-            font-style: normal;
-            font-weight: 100;
-            src: url("assets/fonts/Montserrat/Montserrat-Thin.ttf");
-        }
-        @font-face {
-            font-named-instance: ExtraLight;
-            font-display: swap;
-            font-family: "Montserrat";
-            font-style: normal;
-            font-weight: 200;
-            src: url("assets/fonts/Montserrat/Montserrat-ExtraLight.ttf");
-        }
-        @font-face {
-            font-named-instance: Light;
-            font-display: swap;
-            font-family: "Montserrat";
-            font-style: normal;
-            font-weight: 300;
-            src: url("assets/fonts/Montserrat/Montserrat-Light.ttf");
-        }
-        @font-face {
-            font-named-instance: Regular;
-            font-display: swap;
-            font-family: "Montserrat";
-            font-style: normal;
-            font-weight: 400;
-            src: url("assets/fonts/Montserrat/Montserrat-Regular.ttf");
-        }
-        @font-face {
-            font-named-instance: Medium;
-            font-display: swap;
-            font-family: "Montserrat";
-            font-style: normal;
-            font-weight: 500;
-            src: url("assets/fonts/Montserrat/Montserrat-Medium.ttf");
-        }
-        @font-face {
-            font-named-instance: SemiBold;
-            font-display: swap;
-            font-family: "Montserrat";
-            font-style: semibold;
-            font-weight: 600;
-            src: url("assets/fonts/Montserrat/Montserrat-SemiBold.ttf");
-        }
-        @font-face {
-            font-named-instance: Bold;
-            font-display: swap;
-            font-family: "Montserrat";
-            font-style: bold;
-            font-weight: 700;
-            src: url("assets/fonts/Montserrat/Montserrat-Bold.ttf");
-        }
-        @font-face {
-            font-named-instance: ExtraBold;
-            font-display: swap;
-            font-family: "Montserrat";
-            font-style: ExtraBold;
-            font-weight: 800;
-            src: url("assets/fonts/Montserrat/Montserrat-ExtraBold.ttf");
-        }
-        @font-face {
-            font-named-instance: Black;
-            font-display: swap;
-            font-family: "Montserrat";
-            font-style: Black;
-            font-weight: 900;
-            src: url("assets/fonts/Montserrat/Montserrat-Black.ttf");
-        }
 
-        @font-face {
-            font-named-instance: ExtraLight;
-            font-display: swap;
-            font-family: "Inconsolata";
-            font-style: normal;
-            font-weight: 200;
-            src: url("assets/fonts/Inconsolata/Inconsolata-ExtraLight.ttf");
-        }
-        @font-face {
-            font-named-instance: Light;
-            font-display: swap;
-            font-family: "Inconsolata";
-            font-style: normal;
-            font-weight: 300;
-            src: url("assets/fonts/Inconsolata/Inconsolata-Light.ttf");
-        }
-        @font-face {
-            font-named-instance: Regular;
-            font-display: swap;
-            font-family: "Inconsolata";
-            font-style: normal;
-            font-weight: 400;
-            src: url("assets/fonts/Inconsolata/Inconsolata-Regular.ttf");
-        }
-        @font-face {
-            font-named-instance: Medium;
-            font-display: swap;
-            font-family: "Inconsolata";
-            font-style: normal;
-            font-weight: 500;
-            src: url("assets/fonts/Inconsolata/Inconsolata-Medium.ttf");
-        }
-        @font-face {
-            font-named-instance: SemiBold;
-            font-display: swap;
-            font-family: "Inconsolata";
-            font-style: semibold;
-            font-weight: 600;
-            src: url("assets/fonts/Inconsolata/Inconsolata-SemiBold.ttf");
-        }
-        @font-face {
-            font-named-instance: Bold;
-            font-display: swap;
-            font-family: "Inconsolata";
-            font-style: bold;
-            font-weight: 700;
-            src: url("assets/fonts/Inconsolata/Inconsolata-Bold.ttf");
-        }
-        @font-face {
-            font-named-instance: ExtraBold;
-            font-display: swap;
-            font-family: "Inconsolata";
-            font-style: ExtraBold;
-            font-weight: 800;
-            src: url("assets/fonts/Inconsolata/Inconsolata-ExtraBold.ttf");
-        }
-        @font-face {
-            font-named-instance: Black;
-            font-display: swap;
-            font-family: "Inconsolata";
-            font-style: Black;
-            font-weight: 900;
-            src: url("assets/fonts/Inconsolata/Inconsolata-Black.ttf");
-        }
+    @font-face {
+      font-family: Montserrat;
+      font-style: italic;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url("assets/fonts/Montserrat/Montserrat-Italic-VariableFont_wght.ttf");
+      font-named-instance: italic;
     }
+
+    @font-face {
+      font-family: Inconsolata;
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url("assets/fonts/Inconsolata/Inconsolata-VariableFont_wdth,wght.ttf");
+      font-named-instance: regular;
+    }
+  }
+
+  /* Static Fonts */
+  @supports not (font-variation-settings: normal) {
+    @font-face {
+      font-named-instance: thin;
+      font-display: swap;
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: 100;
+      src: url("assets/fonts/Montserrat/Montserrat-Thin.ttf");
+    }
+
+    @font-face {
+      font-named-instance: extra-light;
+      font-display: swap;
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: 200;
+      src: url("assets/fonts/Montserrat/Montserrat-ExtraLight.ttf");
+    }
+
+    @font-face {
+      font-named-instance: light;
+      font-display: swap;
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: 300;
+      src: url("assets/fonts/Montserrat/Montserrat-Light.ttf");
+    }
+
+    @font-face {
+      font-named-instance: regular;
+      font-display: swap;
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: 400;
+      src: url("assets/fonts/Montserrat/Montserrat-Regular.ttf");
+    }
+
+    @font-face {
+      font-named-instance: medium;
+      font-display: swap;
+      font-family: Montserrat;
+      font-style: normal;
+      font-weight: 500;
+      src: url("assets/fonts/Montserrat/Montserrat-Medium.ttf");
+    }
+
+    @font-face {
+      font-named-instance: semibold;
+      font-display: swap;
+      font-family: Montserrat;
+      font-style: semibold;
+      font-weight: 600;
+      src: url("assets/fonts/Montserrat/Montserrat-SemiBold.ttf");
+    }
+
+    @font-face {
+      font-named-instance: bold;
+      font-display: swap;
+      font-family: Montserrat;
+      font-style: bold;
+      font-weight: 700;
+      src: url("assets/fonts/Montserrat/Montserrat-Bold.ttf");
+    }
+
+    @font-face {
+      font-named-instance: extra-bold;
+      font-display: swap;
+      font-family: Montserrat;
+      font-style: extra-bold;
+      font-weight: 800;
+      src: url("assets/fonts/Montserrat/Montserrat-ExtraBold.ttf");
+    }
+
+    @font-face {
+      font-named-instance: black;
+      font-display: swap;
+      font-family: Montserrat;
+      font-style: black;
+      font-weight: 900;
+      src: url("assets/fonts/Montserrat/Montserrat-Black.ttf");
+    }
+
+    @font-face {
+      font-named-instance: extra-light;
+      font-display: swap;
+      font-family: Inconsolata;
+      font-style: normal;
+      font-weight: 200;
+      src: url("assets/fonts/Inconsolata/Inconsolata-ExtraLight.ttf");
+    }
+
+    @font-face {
+      font-named-instance: light;
+      font-display: swap;
+      font-family: Inconsolata;
+      font-style: normal;
+      font-weight: 300;
+      src: url("assets/fonts/Inconsolata/Inconsolata-Light.ttf");
+    }
+
+    @font-face {
+      font-named-instance: regular;
+      font-display: swap;
+      font-family: Inconsolata;
+      font-style: normal;
+      font-weight: 400;
+      src: url("assets/fonts/Inconsolata/Inconsolata-Regular.ttf");
+    }
+
+    @font-face {
+      font-named-instance: medium;
+      font-display: swap;
+      font-family: Inconsolata;
+      font-style: normal;
+      font-weight: 500;
+      src: url("assets/fonts/Inconsolata/Inconsolata-Medium.ttf");
+    }
+
+    @font-face {
+      font-named-instance: semi-bold;
+      font-display: swap;
+      font-family: Inconsolata;
+      font-style: semibold;
+      font-weight: 600;
+      src: url("assets/fonts/Inconsolata/Inconsolata-SemiBold.ttf");
+    }
+
+    @font-face {
+      font-named-instance: bold;
+      font-display: swap;
+      font-family: Inconsolata;
+      font-style: bold;
+      font-weight: 700;
+      src: url("assets/fonts/Inconsolata/Inconsolata-Bold.ttf");
+    }
+
+    @font-face {
+      font-named-instance: extra-bold;
+      font-display: swap;
+      font-family: Inconsolata;
+      font-style: extra-bold;
+      font-weight: 800;
+      src: url("assets/fonts/Inconsolata/Inconsolata-ExtraBold.ttf");
+    }
+
+    @font-face {
+      font-named-instance: black;
+      font-display: swap;
+      font-family: Inconsolata;
+      font-style: black;
+      font-weight: 900;
+      src: url("assets/fonts/Inconsolata/Inconsolata-Black.ttf");
+    }
+  }
 }
 
 @layer components {
-    .quick-link {
-        @apply w-8 h-8 p-1 text-gray-300 animate-fade-in-right hover:text-white hover:scale-110;
-    }
-    .icon {
-        @apply w-full fill-current;
-    }
+  .quick-link {
+    @apply w-8 h-8 p-1 text-gray-300 animate-fade-in-right hover:text-white hover:scale-110;
+  }
+
+  .icon {
+    @apply w-full fill-current;
+  }
 }
 
 @layer utilities {
-    .font-effect-anaglyph {
-        text-shadow: -0.06em 0 red, 0.06em 0 cyan;
-    }
-    .font-effect-3d {
-        text-shadow: 0px 1px 0px #c7c8ca, 0px 2px 0px #b1b3b6, 0px 3px 0px #9d9fa2, 0px 4px 0px #8a8c8e, 0px 5px 0px #77787b, 0px 6px 0px #636466, 0px 7px 0px #4d4d4f, 0px 8px 7px #001135;
-    }
+  .font-effect-anaglyph {
+    text-shadow: -0.06em 0 red, 0.06em 0 cyan;
+  }
+
+  .font-effect-3d {
+    /* stylelint-disable-next-line max-line-length */
+    text-shadow: 0 1px 0 #c7c8ca, 0 2px 0 #b1b3b6, 0 3px 0 #9d9fa2, 0 4px 0 #8a8c8e, 0 5px 0 #77787b, 0 6px 0 #636466, 0 7px 0 #4d4d4f, 0 8px 7px #001135;
+  }
 }
