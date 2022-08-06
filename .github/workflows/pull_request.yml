@@ -11,7 +11,5 @@ jobs:
     steps:
       - name: Checkout latest
         uses: actions/checkout@v2
-      - name: Install dependencies
-        run: npm ci
       - name: Lint files
         run: npm run lint:css
