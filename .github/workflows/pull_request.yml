@@ -2,11 +2,11 @@ name: lint-source-code
 
 on:
   pull_request:
-    types: [synchronize, labeled]
+    types: [synchronize]
 
 jobs:
   css-linting:
-    if: ${{ github.event.label.name == 'css-changes' }}
+    if: ${{ github.event.label.name != 'no-linting' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest
