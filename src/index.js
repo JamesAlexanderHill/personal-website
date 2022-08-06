@@ -1,4 +1,4 @@
-const titles = ["Solution Architect", 'Web Engineer', 'Avid Programmer', 'Full Stack Developer'];
+const titles = ['Solution Architect', 'Web Engineer', 'Avid Programmer', 'Full Stack Developer'];
 
 document.addEventListener('DOMContentLoaded', () => {
 	const randomIndex = Math.ceil(Math.random() * titles.length -1);
