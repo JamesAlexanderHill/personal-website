@@ -3,7 +3,7 @@ A personal website
 
 # Workflows
 ## Linting
-All Pull Requests will check for changes to ~~HTML,~~ CSS ~~and JS~~ files in the `/src` directory and run the relevant linting workflows.
+All Pull Requests will check for changes to ~~HTML,~~ CSS and JS files in the `/src` directory and run the relevant linting workflows.
 If you want to skip a specific linting workflow you can add the following strings to your commit message: `[skip actions]`.
 
 If you would like to automatically fix linting issues on your local machine you can run `npm run lint-fix`.

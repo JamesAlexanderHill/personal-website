@@ -7,6 +7,7 @@
     "@parcel/packager-xml": "^2.6.2",
     "@parcel/transformer-sass": "^2.6.2",
     "@parcel/transformer-webmanifest": "^2.6.2",
+    "eslint": "^8.21.0",
     "npm-run-all": "^4.1.5",
     "parcel": "^2.6.2",
     "parcel-config-pwa-manifest": "^0.1.2",
@@ -27,6 +28,8 @@
     "lint-fix": "run-p lint-fix:*",
     "lint:css": "stylelint 'src/**/*.css'",
     "lint-fix:css": "stylelint 'src/**/*.css' --fix",
+    "lint:js": "eslint 'src/**/*.js'",
+    "lint-fix:js": "eslint 'src/**/*.js' --fix",
     "build": "parcel build src/index.html"
   },
   "repository": {
