@@ -1,0 +1,26 @@
+name: version-bump
+
+on: workflow_dispatch
+  inputs:
+    semverLevel:
+      description: 'SemVer level'
+      required: true
+      default: 'patch'
+      type: choice
+      options:
+      - major
+      - minor
+      - patch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest
+        uses: actions/checkout@v2
+      - name: npm version ${major | minor | patch}
+        run: npm version $LEVEL
+        env:
+          LEVEL: ${{ inputs.semverLevel }}
+      - name: Push tags
+        run: git push --follow-tags
