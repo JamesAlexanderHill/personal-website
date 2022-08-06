@@ -1,9 +1,13 @@
 name: Lint-source-code
 
-on: workflow_dispatch
+on:
+  pull_request:
+    types:
+      - labeled
 
 jobs:
-  build:
+  css-linting:
+    if: ${{ github.event.label.name == 'css-changes' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest
@@ -11,4 +15,4 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Lint files
-        run: npm run lint
+        run: npm run lint:css
