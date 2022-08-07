@@ -13,10 +13,17 @@ If you would like to automatically fix linting issues on your local machine you 
 1. Merge PR with changes into main
 2. Update local main with `git pull`
 3. Bump version + tag with `npm  version ${type}` where type = patch, minor, major
-    1. This should run the linting script
-    2. Make a new commit with the correct SEMVER label
-    3. Create a new tag with the same SEMVER label
-    4. Push up tags to remote using `git push --follow-tags`
-4. Draft a new release on github with the title being the version eg. `v3.2.4`
-5. Generate release notes + add any additional info
-6. Publish release + ensure successful release via github actions
+4. Push up tags to remote using `git push --follow-tags`
+5. Draft a new release on github with the title being the new version eg. `v3.2.4`
+6. Generate release notes + add any additional info
+7. Publish release + ensure successful release via github actions
+
+## New Release (Workflow)
+1. Goto github actions
+2. Click on `version-bump`
+3. Open `Run workflow` dropdown
+4. Select type of version to tag off (patch | minor | major)
+5. Click `Run Workflow`
+6. Draft a new release on github with the title being the new version eg. `v3.2.4`
+7. Generate release notes + add any additional info
+8. Publish release + ensure successful release via github actions
