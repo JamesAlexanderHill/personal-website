@@ -1,16 +1,17 @@
 name: version-bump
 
-on: workflow_dispatch
-  inputs:
-    semverLevel:
-      description: 'SemVer level'
-      required: true
-      default: 'patch'
-      type: choice
-      options:
-      - major
-      - minor
-      - patch
+on:
+  workflow_dispatch:
+    inputs:
+      semverLevel:
+        description: 'SemVer level'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - major
+        - minor
+        - patch
 
 jobs:
   build:
