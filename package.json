@@ -31,7 +31,7 @@
     "lint:js": "eslint 'src/**/*.js'",
     "lint-fix:js": "eslint 'src/**/*.js' --fix",
     "build": "parcel build src/index.html",
-    "preversion": "npm run lint",
+    "preversion": "npm ci && npm run lint",
     "postversion": "git push --follow-tags"
   },
   "repository": {
