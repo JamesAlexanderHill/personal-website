@@ -30,9 +30,7 @@
     "lint-fix:css": "stylelint 'src/**/*.css' --fix",
     "lint:js": "eslint 'src/**/*.js'",
     "lint-fix:js": "eslint 'src/**/*.js' --fix",
-    "build": "parcel build src/index.html",
-    "preversion": "npm ci && npm run lint",
-    "postversion": "git push --follow-tags"
+    "build": "parcel build src/index.html"
   },
   "repository": {
     "type": "git",
