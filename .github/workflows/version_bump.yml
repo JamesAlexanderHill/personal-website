@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout latest
         uses: actions/checkout@v2
+        with:
+          persist-credentials: true
       - name: npm version ${major | minor | patch}
         run: npm version $LEVEL
         env:
