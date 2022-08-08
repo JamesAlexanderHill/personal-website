@@ -2,7 +2,7 @@ module.exports = {
   plugins: {
     "posthtml-include": {},
     "posthtml-inline-svg": {
-      "cwd": "./src/assets/icons/svg"
+      "cwd": "./src/assets/img/svg"
     },
     "posthtml-expressions": {
       "locals": {
