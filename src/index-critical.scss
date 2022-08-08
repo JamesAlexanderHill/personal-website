@@ -29,6 +29,10 @@ body {
             height: 2rem;
             width: 2rem;
             color: #d1d5db;
+
+            &:hover {
+                color: #fb923c;
+            }
         }
     }
 }
