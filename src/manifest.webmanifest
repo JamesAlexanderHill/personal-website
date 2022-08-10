@@ -1,31 +1,15 @@
 {
     "$schema": "https://json.schemastore.org/web-manifest-combined.json",
-    "id": "./",
+    "id": ".",
     "name": "James Alexander Hill - portfolio, devnotes, resources",
     "short_name": "James Hill",
     "description": "A Web Engineer's space to share cool stuff to do with the web (or whatever I am interested in at the time).",
     "orientation": "portrait-primary",
-    "scope": "./",
-    "start_url": "./",
+    "scope": ".",
+    "start_url": ".",
     "display": "fullscreen",
     "background_color": "#0f172a",
     "theme_color": "#fb923c",
-    "screenshots" : [
-        {
-            "src": "./assets/screenshots/iPhone12.png",
-            "sizes": "1170x2532",
-            "type": "image/png",
-            "platform": "narrow",
-            "label": "Homepage of jamesalexanderhill.com on an iPhone"
-        },
-        {
-            "src": "./assets/screenshots/desktop.png",
-            "sizes": "2560x1440",
-            "type": "image/png",
-            "platform": "wide",
-            "label": "Homepage of jamesalexanderhill.com on a desktop"
-        }
-    ],
     "shortcuts" : [
         {
             "name": "Contact Me",
