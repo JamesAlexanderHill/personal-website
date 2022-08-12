@@ -1,6 +1,6 @@
 {
   "name": "personal-website",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A personal website",
   "devDependencies": {
     "@mischnic/parcel-namer-preserve-structure": "^0.2.0",
