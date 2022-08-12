@@ -5,3 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	const titleContainer = document.getElementById('titleContainer');
 	titleContainer.innerText = titles[randomIndex];
 });
+
+/**
+ * Install PWA service worker
+ */
+if ('serviceWorker' in navigator) {
+	window.addEventListener('load', function () {
+		navigator.serviceWorker.register(new URL('../../service_worker.js', import.meta.url));
+	});
+}
