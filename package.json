@@ -1,15 +1,33 @@
 {
-  "name": "@example/basics",
-  "version": "0.0.1",
+  "name": "personal-website",
+  "version": "3.1.0",
+  "description": "A personal website",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "watch": "astro dev",
+    "lint": "run-p lint:*",
+    "lint-fix": "run-p lint-fix:*",
+    "lint:css": "stylelint 'src/**/*.css'",
+    "lint-fix:css": "stylelint 'src/**/*.css' --fix",
+    "lint:js": "eslint 'src/**/*.js'",
+    "lint-fix:js": "eslint 'src/**/*.js' --fix",
+    "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^1.0.7"
-  }
+    "astro": "^1.0.7",
+    "eslint": "^8.22.0",
+    "npm-run-all": "^4.1.5",
+    "stylelint": "^14.11.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JamesAlexanderHill/personal-website.git"
+  },
+  "author": "James Hill",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JamesAlexanderHill/personal-website/issues"
+  },
+  "homepage": "https://github.com/JamesAlexanderHill/personal-website#readme"
 }
