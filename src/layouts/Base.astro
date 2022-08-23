@@ -1,0 +1,22 @@
+---
+import QuickLinks from '../components/QuickLinks.astro';
+
+const { title, version } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en" data-npm-package-version={version || 'null'}>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<meta name="description" content="A Web Engineer's space to share cool stuff to do with the web (or whatever I am interested in at the time)."/>
+	</head>
+	<body class="bg-slate-900 text-gray-300">
+		<slot name="header"/>
+		<slot />
+		<slot name="footer"/>
+		<QuickLinks />
+	</body>
+</html>

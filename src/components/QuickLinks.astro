@@ -1,0 +1,31 @@
+---
+import Icon from '../components/Icon.astro';
+const links = [
+    {
+        label: 'Visit my Github',
+        slug: 'github',
+        url: 'https://github.com/JamesAlexanderHill',
+        isExternal: true,
+        additionalClasses: 'animation-delay-1000',
+    },
+    {
+        label: 'Buy me a coffee',
+        slug: 'coffee',
+        url: 'https://www.buymeacoffee.com/jamesahill',
+        isExternal: true,
+        additionalClasses: 'animation-delay-1200',
+    },
+    {
+        label: 'Get in contact',
+        slug: 'email',
+        url: 'mailto:enquiry@jamesalexanderhill.com',
+        isExternal: false,
+        additionalClasses: 'animation-delay-1400',
+    }
+];
+---
+<aside class="fixed bottom-4 right-4">
+    <ul class="flex flex-col gap-3 items-center">
+        {links.map((link) => <li class={`hover:text-accent-400 hover:scale-110 transition-transform animate-fade-in-right ${link.additionalClasses}`}><a rel={link.isExternal ? 'noopener noreferrer nofollow' : undefined} target={link.isExternal ? '_blank' : undefined} href={link.url}><Icon name={link.slug} /><span class="sr-only">{link.label}</span></a></li>)}
+    </ul>
+</aside>
