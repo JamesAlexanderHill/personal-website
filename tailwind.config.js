@@ -5,7 +5,7 @@ module.exports = {
 	theme: {
 		fontFamily: {
 			heading: ['Montserrat', 'sans-serif'],
-			body: ['Inconsolata', 'serif'],
+			body: ['Inconsolata', 'monospace'],
 		},
 		extend: {
 			colors: {

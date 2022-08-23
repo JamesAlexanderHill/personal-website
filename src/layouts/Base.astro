@@ -12,8 +12,12 @@ const { title, version } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content="A Web Engineer's space to share cool stuff to do with the web (or whatever I am interested in at the time)."/>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@300;400;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
 	</head>
-	<body class="bg-slate-900 text-gray-300">
+	<body class="bg-slate-900 text-gray-300 font-body">
 		<slot name="header"/>
 		<slot />
 		<slot name="footer"/>
