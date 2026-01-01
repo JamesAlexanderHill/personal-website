@@ -1,0 +1,38 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BlogCard from "../../components/BlogCard.astro";
+
+const posts = (await getCollection("devnotes")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout title="DevNotes - James Hill">
+  <section>
+    <h1 class="mb-2 text-3xl font-bold text-secondary">DevNotes</h1>
+    <p class="mb-8 text-secondary/60">
+      Thoughts, learnings, and notes from my development journey.
+    </p>
+
+    {
+      posts.length === 0 ? (
+        <p class="text-center text-secondary/60">
+          No posts yet. Check back soon!
+        </p>
+      ) : (
+        <div class="grid gap-6">
+          {posts.map((post) => (
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              pubDate={post.data.pubDate}
+              tags={post.data.tags}
+              href={`/devnotes/${post.slug}`}
+            />
+          ))}
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>

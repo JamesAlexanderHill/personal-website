@@ -1,0 +1,99 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  tags?: string[];
+  backLink: string;
+  backLabel: string;
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  tags = [],
+  backLink,
+  backLabel,
+} = Astro.props;
+
+const formattedPubDate = pubDate.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+const formattedUpdatedDate = updatedDate?.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<BaseLayout title={`${title} - James Hill`} description={description}>
+  <article class="prose prose-invert mx-auto max-w-none">
+    <a
+      href={backLink}
+      class="mb-8 inline-flex items-center gap-1 text-sm text-secondary/60 no-underline transition-colors hover:text-accent"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-4 w-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      Back to {backLabel}
+    </a>
+
+    <header class="mb-8 border-b border-secondary/20 pb-8">
+      <h1 class="mb-4 text-4xl font-bold text-secondary">{title}</h1>
+
+      <div class="flex flex-wrap items-center gap-4 text-sm text-secondary/60">
+        <time datetime={pubDate.toISOString()}>
+          {formattedPubDate}
+        </time>
+
+        {
+          updatedDate && (
+            <span>
+              (Updated:{" "}
+              <time datetime={updatedDate.toISOString()}>
+                {formattedUpdatedDate}
+              </time>
+              )
+            </span>
+          )
+        }
+
+        {
+          tags.length > 0 && (
+            <div class="flex gap-2">
+              {tags.map((tag) => (
+                <span class="rounded bg-accent/10 px-2 py-0.5 text-xs text-accent">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )
+        }
+      </div>
+    </header>
+
+    <div
+      class="prose-headings:text-secondary prose-p:text-secondary/90 prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-strong:text-secondary prose-code:text-accent prose-pre:border prose-pre:border-secondary/20 prose-pre:bg-primary"
+    >
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

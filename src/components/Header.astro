@@ -1,0 +1,190 @@
+---
+import RoleAnimator from "./RoleAnimator.tsx";
+
+interface Props {
+  isHomepage?: boolean;
+  currentPath: string;
+}
+
+const { isHomepage = false, currentPath } = Astro.props;
+
+const tabs = [
+  { label: "About me", href: "/#experience-and-education" },
+  { label: "Dev-notes", href: "/devnotes" },
+  { label: "Projects", href: "/projects" },
+];
+
+function isActive(href: string, current: string): boolean {
+  if (href.startsWith("/#")) {
+    return current === "/";
+  }
+  return current.startsWith(href);
+}
+
+const HERO_HEIGHT = 400;
+const COMPACT_HEIGHT = 64;
+---
+
+<!-- Spacer -->
+<div
+  id="header-spacer"
+  style={`height: ${isHomepage ? HERO_HEIGHT : COMPACT_HEIGHT}px`}
+>
+</div>
+
+<!-- Fixed header -->
+<header
+  id="site-header"
+  class="fixed left-0 right-0 top-0 z-40 bg-primary"
+  data-is-homepage={isHomepage}
+  data-hero-height={HERO_HEIGHT}
+  data-compact-height={COMPACT_HEIGHT}
+>
+  <div class="container relative mx-auto h-full max-w-4xl px-4">
+    <!-- Title -->
+    <a
+      href="/"
+      id="header-title"
+      class="absolute"
+      style="view-transition-name: header-title"
+    >
+      <h1 class="font-bold text-secondary whitespace-nowrap">James Hill</h1>
+    </a>
+
+    <!-- Subtitle - only on homepage -->
+    {
+      isHomepage && (
+        <p
+          id="header-subtitle"
+          class="absolute left-1/2 -translate-x-1/2 text-lg md:text-xl"
+        >
+          <RoleAnimator client:load />
+        </p>
+      )
+    }
+
+    <!-- Navigation -->
+    <nav
+      id="header-nav"
+      class="absolute left-1/2"
+      style="view-transition-name: header-nav"
+    >
+      <ul class="flex gap-1 rounded-lg border border-secondary/20 p-1">
+        {
+          tabs.map((tab) => {
+            const active = isActive(tab.href, currentPath);
+            return (
+              <li class="relative">
+                {active && (
+                  <span
+                    id="active-tab-indicator"
+                    style="view-transition-name: active-tab"
+                    class="absolute inset-0 rounded-md bg-accent"
+                  />
+                )}
+                <a
+                  href={tab.href}
+                  class:list={[
+                    "relative block rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
+                    active
+                      ? "text-primary"
+                      : "text-secondary/60 hover:text-secondary",
+                  ]}
+                >
+                  {tab.label}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    const header = document.getElementById("site-header");
+    const title = document.getElementById("header-title");
+    const subtitle = document.getElementById("header-subtitle");
+    const nav = document.getElementById("header-nav");
+    const activeTabIndicator = document.getElementById("active-tab-indicator");
+
+    if (!header || !title || !nav) return;
+
+    const isHomepage = header.dataset.isHomepage === "true";
+    const HERO_HEIGHT = parseInt(header.dataset.heroHeight || "400");
+    const COMPACT_HEIGHT = parseInt(header.dataset.compactHeight || "64");
+    const SCROLL_DISTANCE = HERO_HEIGHT - COMPACT_HEIGHT;
+    const COMPACT_THRESHOLD = 0.85;
+
+    function updateHeader() {
+      if (!header || !title || !nav) return;
+
+      if (!isHomepage) {
+        // Non-homepage: compact state
+        header.style.height = `${COMPACT_HEIGHT}px`;
+        header.style.boxShadow = "0 10px 15px -3px rgba(15, 23, 42, 0.5)";
+
+        title.style.top = "50%";
+        title.style.left = "16px";
+        title.style.transform = "translate(0, -50%)";
+        title.querySelector("h1")!.style.fontSize = "1.25rem";
+
+        nav.style.bottom = "50%";
+        nav.style.transform = "translate(-50%, 50%)";
+
+        return;
+      }
+
+      const scrollY = window.scrollY;
+      const progress = Math.min(Math.max(scrollY / SCROLL_DISTANCE, 0), 1);
+      const isCompact = progress > COMPACT_THRESHOLD;
+
+      // Header height
+      const currentHeight = HERO_HEIGHT - progress * SCROLL_DISTANCE;
+      header.style.height = `${currentHeight}px`;
+      header.style.boxShadow =
+        progress > 0.1 ? "0 10px 15px -3px rgba(15, 23, 42, 0.5)" : "none";
+
+      // Title position and size
+      const titleScale = 1 - progress * 0.65;
+      const titleTop = 35 + progress * 15;
+      const titleLeftPercent = 50 - progress * 50;
+
+      title.style.top = `${titleTop}%`;
+      title.style.left = `calc(${titleLeftPercent}% + 16px)`;
+      title.style.transform = `translate(-${titleLeftPercent}%, -50%)`;
+      title.querySelector("h1")!.style.fontSize =
+        `clamp(1.25rem, ${3.5 * titleScale}rem, 3.5rem)`;
+
+      // Subtitle opacity
+      if (subtitle) {
+        const subtitleOpacity = Math.max(0, 1 - progress * 2.5);
+        subtitle.style.opacity = String(subtitleOpacity);
+        subtitle.style.top = "45%";
+        subtitle.style.visibility = subtitleOpacity > 0 ? "visible" : "hidden";
+      }
+
+      // Navigation position
+      const navBottom = 5 + progress * 45;
+      nav.style.bottom = `${navBottom}%`;
+      nav.style.transform = "translate(-50%, 50%)";
+    }
+
+    // Initial update
+    updateHeader();
+
+    // Listen for scroll
+    window.addEventListener("scroll", updateHeader, { passive: true });
+
+    // Re-run on view transitions
+    document.addEventListener("astro:page-load", () => {
+      updateHeader();
+    });
+  }
+
+  // Run on initial load and after view transitions
+  initHeader();
+  document.addEventListener("astro:after-swap", initHeader);
+</script>
