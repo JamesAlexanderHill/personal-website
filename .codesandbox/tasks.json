@@ -12,7 +12,10 @@
     "watch": {
       "name": "watch",
       "command": "npm run watch",
-      "runAtStart": true
+      "runAtStart": true,
+      "preview": {
+        "port": 3000
+      }
     },
     "build": {
       "name": "build",
