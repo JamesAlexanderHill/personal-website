@@ -1,236 +1,439 @@
 ---
-interface TimelineItem {
-  type: 'education' | 'employment' | 'notable-event';
-  subtype?: 'conference' | 'presentation';
+import timelineData from '../data/timeline.json';
+
+interface Period {
+  id: string;
+  type: 'work' | 'education' | 'volunteer' | 'project' | 'other';
   title: string;
-  organization?: string;
-  period: string;
-  summary?: string;
-  startDate: Date;
-  endDate?: Date;
+  organisation: string;
+  location?: string;
+  startDate: string;
+  endDate: string | null;
+  blurb: string;
+  tags?: string[];
+  links?: { label: string; url: string }[];
+  logo?: string;
+}
+
+interface Event {
+  id: string;
+  type: 'conference' | 'presentation' | 'publication' | 'award' | 'milestone' | 'other';
+  title: string;
+  date: string;
+  venue?: string;
+  location?: string;
+  blurb: string;
+  tags?: string[];
+  links?: { label: string; url: string }[];
+  icon?: string;
 }
 
 interface Props {
-  items?: TimelineItem[];
+  ordering?: 'chronological' | 'reverse';
 }
 
-const defaultItems: TimelineItem[] = [
-  {
-    type: 'employment',
-    title: 'Senior Web Engineer (Video)',
-    organization: 'Foxtel Dazn',
-    period: 'July 2025 - Present',
-    summary: 'Leading video engineering initiatives and architecting scalable streaming solutions.',
-    startDate: new Date('2025-07-01'),
-  },
-  {
-    type: 'notable-event',
-    subtype: 'presentation',
-    title: 'Presentation on AI in Engineering',
-    period: '15th Sep 2025',
-    summary: 'Presented insights on integrating AI tools into engineering workflows.',
-    startDate: new Date('2025-09-15'),
-  },
-  {
-    type: 'notable-event',
-    subtype: 'conference',
-    title: 'Web Directions Engineering AI',
-    period: '12th Sep 2025',
-    summary: 'Attended conference focused on AI in web engineering.',
-    startDate: new Date('2025-09-12'),
-  },
-  {
-    type: 'employment',
-    title: 'Web Engineer (Video)',
-    organization: 'Foxtel Streamotion',
-    period: 'Jan 2021 - July 2025',
-    summary: 'Built and maintained video streaming applications, improving performance and accessibility.',
-    startDate: new Date('2021-01-01'),
-    endDate: new Date('2025-07-01'),
-  },
-  {
-    type: 'notable-event',
-    subtype: 'presentation',
-    title: 'Presentation on ARIA Spec, accessibility and Lighthouse scores',
-    period: '9th Nov 2021',
-    summary: 'Presented on web accessibility standards and performance optimization.',
-    startDate: new Date('2021-11-09'),
-  },
-  {
-    type: 'notable-event',
-    subtype: 'conference',
-    title: 'Web Direction AAA (All about access)',
-    period: '29th Oct 2021',
-    summary: 'Attended accessibility-focused conference.',
-    startDate: new Date('2021-10-29'),
-  },
-  {
-    type: 'employment',
-    title: 'Web Developer',
-    organization: 'Cyrius Media Group',
-    period: 'Mar 2019 - Jan 2021',
-    summary: 'Developed responsive websites and web applications for diverse clients.',
-    startDate: new Date('2019-03-01'),
-    endDate: new Date('2021-01-01'),
-  },
-  {
-    type: 'education',
-    title: 'Bachelor of Information Technology',
-    organization: 'Macquarie University',
-    period: 'Jan 2017 - Dec 2020',
-    summary: 'Focused on software engineering, web development, and distributed systems.',
-    startDate: new Date('2017-01-01'),
-    endDate: new Date('2020-12-01'),
-  },
-  {
-    type: 'education',
-    title: 'NSW High School Certificate',
-    organization: 'St Joseph\'s College',
-    period: 'Jan 2010 - Dec 2016',
-    summary: 'Completed Software Design and Development.',
-    startDate: new Date('2010-01-01'),
-    endDate: new Date('2016-12-01'),
-  },
-];
+const { ordering = 'reverse' } = Astro.props;
 
-const { items = defaultItems } = Astro.props;
+const periods: Period[] = timelineData.periods;
+const events: Event[] = timelineData.events;
 
-// Sort items by start date (most recent first)
-const sortedItems = [...items].sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+// Calculate year range and segments
+function getYear(dateStr: string | null): number {
+  if (!dateStr) return new Date().getFullYear();
+  return new Date(dateStr).getFullYear();
+}
 
-// Separate periods (left side) and events (right side)
-const periods = sortedItems.filter(item => item.type === 'education' || item.type === 'employment');
-const events = sortedItems.filter(item => item.type === 'notable-event');
+const allYears = new Set<number>();
 
-const typeConfig = {
-  education: {
-    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />`,
-    label: 'Education',
-  },
-  employment: {
-    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />`,
-    label: 'Employment',
-  },
-  conference: {
-    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />`,
-    label: 'Conference',
-  },
-  presentation: {
-    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />`,
-    label: 'Presentation',
-  },
+// Add years from periods
+periods.forEach(period => {
+  const startYear = getYear(period.startDate);
+  const endYear = getYear(period.endDate);
+  for (let year = startYear; year <= endYear; year++) {
+    allYears.add(year);
+  }
+});
+
+// Add years from events
+events.forEach(event => {
+  allYears.add(getYear(event.date));
+});
+
+const sortedYears = Array.from(allYears).sort((a, b) =>
+  ordering === 'chronological' ? a - b : b - a
+);
+
+// Group events by year
+const eventsByYear = new Map<number, Event[]>();
+events.forEach(event => {
+  const year = getYear(event.date);
+  if (!eventsByYear.has(year)) {
+    eventsByYear.set(year, []);
+  }
+  eventsByYear.get(year)!.push(event);
+});
+
+// Sort events within each year
+eventsByYear.forEach(yearEvents => {
+  yearEvents.sort((a, b) => {
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+    return ordering === 'chronological' ? dateA - dateB : dateB - dateA;
+  });
+});
+
+// Get periods active in a given year
+function getPeriodsForYear(year: number): Period[] {
+  return periods.filter(period => {
+    const startYear = getYear(period.startDate);
+    const endYear = getYear(period.endDate);
+    return year >= startYear && year <= endYear;
+  });
+}
+
+// Type icons
+const periodIcons = {
+  work: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />`,
+  education: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />`,
+  volunteer: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />`,
+  project: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />`,
+  other: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />`,
 };
 
-function getTypeConfig(item: TimelineItem) {
-  if (item.type === 'notable-event' && item.subtype) {
-    return typeConfig[item.subtype];
-  }
-  return typeConfig[item.type];
-}
+const eventIcons = {
+  conference: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />`,
+  presentation: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />`,
+  publication: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />`,
+  award: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />`,
+  milestone: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />`,
+  other: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />`,
+};
+
+const periodLabels = {
+  work: 'Employment',
+  education: 'Education',
+  volunteer: 'Volunteer',
+  project: 'Project',
+  other: 'Other',
+};
+
+const eventLabels = {
+  conference: 'Conference',
+  presentation: 'Presentation',
+  publication: 'Publication',
+  award: 'Award',
+  milestone: 'Milestone',
+  other: 'Event',
+};
 ---
 
-<section id="experience-and-education" class="scroll-mt-20 py-12">
+<section id="timeline" class="scroll-mt-20 py-12" aria-label="Professional timeline">
   <h2 class="mb-8 text-2xl font-bold text-secondary">Experience & Education</h2>
 
-  <div class="relative">
-    <!-- Timeline structure -->
-    <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 md:gap-12 relative">
-      <!-- Left side: Periods (Education & Employment) with sticky positioning -->
-      <div class="space-y-0">
-        {
-          periods.map((item, index) => {
-            const config = getTypeConfig(item);
-            return (
-              <div key={index} class="relative">
-                <div class="sticky top-20 z-10 border-y border-t-secondary/10 border-b-secondary/20 bg-primary/95 backdrop-blur-sm px-4 py-3 mb-4">
-                  <div class="flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                      <div class="flex h-6 w-6 items-center justify-center rounded-full border border-accent/50 bg-accent/10">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-3 w-3 text-accent"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          set:html={config.icon}
-                        />
-                      </div>
-                      <span class="text-xs font-semibold text-accent uppercase tracking-wide">
-                        {config.label}
-                      </span>
-                    </div>
-                    <span class="text-xs text-secondary/70 font-medium whitespace-nowrap">{item.period}</span>
-                  </div>
-                </div>
+  <!-- Desktop Layout -->
+  <div class="hidden md:block">
+    <div class="relative">
+      {sortedYears.map((year, yearIndex) => {
+        const yearPeriods = getPeriodsForYear(year);
+        const yearEvents = eventsByYear.get(year) || [];
+        const hasContent = yearPeriods.length > 0 || yearEvents.length > 0;
 
-                <div class="px-4 pb-6">
-                  <div class="rounded-lg border border-secondary/20 bg-primary p-4 transition-all hover:border-accent/50 hover:shadow-lg">
-                    <h3 class="font-semibold text-secondary mb-1 text-lg">{item.title}</h3>
-                    {item.organization && (
-                      <p class="text-sm text-secondary/70 mb-3">{item.organization}</p>
-                    )}
-                    {item.summary && (
-                      <p class="text-sm text-secondary/60 leading-relaxed">{item.summary}</p>
-                    )}
-                  </div>
+        return (
+          <div
+            class={`relative ${hasContent ? 'min-h-[200px] mb-12' : 'h-12'}`}
+            data-year={year}
+          >
+            {/* Year marker on center line */}
+            <div class="absolute left-1/2 top-0 -translate-x-1/2 z-20">
+              <div class="flex items-center gap-2">
+                <div class="h-8 w-8 rounded-full border-2 border-accent bg-primary flex items-center justify-center">
+                  <span class="text-xs font-bold text-accent">{year}</span>
                 </div>
               </div>
-            );
-          })
-        }
-      </div>
+            </div>
 
-      <!-- Center: Timeline line (hidden on mobile) -->
-      <div class="hidden md:block relative w-px">
-        <div class="sticky top-20 h-screen w-0.5 bg-gradient-to-b from-accent/50 via-accent/30 to-transparent mx-auto"></div>
-      </div>
+            {/* Center timeline line */}
+            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-accent/30 -translate-x-1/2"></div>
 
-      <!-- Right side: Notable Events -->
-      <div class="space-y-6">
-        {
-          events.map((item, index) => {
-            const config = getTypeConfig(item);
-            return (
-              <div key={index} class="relative">
-                <div class="rounded-lg border border-secondary/20 bg-primary p-4 transition-all hover:border-accent/50 hover:shadow-lg">
-                  <div class="mb-2 flex items-start justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                      <div class="flex h-8 w-8 items-center justify-center rounded-full border border-accent/50 bg-accent/10">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-4 w-4 text-accent"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          set:html={config.icon}
-                        />
+            {/* Three-column grid */}
+            <div class="grid grid-cols-[1fr_auto_1fr] gap-8 pt-12">
+              {/* Left: Periods */}
+              <div class="flex flex-col gap-4 pr-4">
+                {yearPeriods.map((period) => {
+                  const isStart = getYear(period.startDate) === year;
+                  const isEnd = getYear(period.endDate) === year;
+                  const isCurrent = period.endDate === null;
+
+                  return (
+                    <div
+                      id={`period-${period.id}`}
+                      class="period-card group rounded-lg border border-secondary/20 bg-primary p-4 transition-all hover:border-accent hover:shadow-lg focus-within:border-accent focus-within:shadow-lg"
+                      tabindex="0"
+                      role="article"
+                      aria-labelledby={`period-title-${period.id}`}
+                    >
+                      <div class="flex items-start gap-3 mb-2">
+                        <div class="flex-shrink-0 h-8 w-8 rounded-full border border-accent/50 bg-accent/10 flex items-center justify-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4 text-accent"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            set:html={periodIcons[period.type]}
+                            aria-hidden="true"
+                          />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-start justify-between gap-2 mb-1">
+                            <span class="text-xs font-medium text-accent uppercase tracking-wide">
+                              {periodLabels[period.type]}
+                            </span>
+                            <span class="text-xs text-secondary/60 whitespace-nowrap">
+                              {new Date(period.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                              {' - '}
+                              {isCurrent ? 'Present' : new Date(period.endDate!).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                            </span>
+                          </div>
+                          <h3 id={`period-title-${period.id}`} class="font-semibold text-secondary mb-1">
+                            {period.title}
+                          </h3>
+                          <p class="text-sm text-secondary/70 mb-2">{period.organisation}</p>
+                          {period.location && (
+                            <p class="text-xs text-secondary/50 mb-2">{period.location}</p>
+                          )}
+                          <p class="text-sm text-secondary/80 leading-relaxed">{period.blurb}</p>
+                          {period.tags && period.tags.length > 0 && (
+                            <div class="flex flex-wrap gap-2 mt-3">
+                              {period.tags.map(tag => (
+                                <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <span class="text-xs font-medium text-accent uppercase tracking-wide">
-                        {config.label}
-                      </span>
                     </div>
-                    <span class="text-xs text-secondary/60 whitespace-nowrap">{item.period}</span>
-                  </div>
-                  <h3 class="font-semibold text-secondary mb-1">{item.title}</h3>
-                  {item.organization && (
-                    <p class="text-sm text-secondary/70 mb-2">{item.organization}</p>
-                  )}
-                  {item.summary && (
-                    <p class="text-sm text-secondary/60 leading-relaxed">{item.summary}</p>
-                  )}
-                </div>
+                  );
+                })}
               </div>
-            );
-          })
-        }
-      </div>
+
+              {/* Center: Timeline line (handled by absolute positioning above) */}
+              <div class="w-0"></div>
+
+              {/* Right: Events */}
+              <div class="flex flex-col gap-4 pl-4">
+                {yearEvents.map((event) => (
+                  <div class="relative">
+                    {/* Event dot on center line */}
+                    <div class="absolute right-full top-4 mr-4 translate-x-1/2">
+                      <div class="h-3 w-3 rounded-full bg-accent border-2 border-primary"></div>
+                      {/* Connector line */}
+                      <svg class="absolute left-full top-1/2 -translate-y-1/2 ml-1" width="16" height="2">
+                        <line x1="0" y1="1" x2="16" y2="1" stroke="currentColor" stroke-width="1" class="text-accent/50" />
+                      </svg>
+                    </div>
+
+                    <div
+                      id={`event-${event.id}`}
+                      class="event-card rounded-lg border border-secondary/20 bg-primary p-4 transition-all hover:border-accent hover:shadow-lg"
+                      tabindex="0"
+                      role="article"
+                      aria-labelledby={`event-title-${event.id}`}
+                    >
+                      <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 h-8 w-8 rounded-full border border-accent/50 bg-accent/10 flex items-center justify-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4 text-accent"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            set:html={eventIcons[event.type]}
+                            aria-hidden="true"
+                          />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-start justify-between gap-2 mb-1">
+                            <span class="text-xs font-medium text-accent uppercase tracking-wide">
+                              {eventLabels[event.type]}
+                            </span>
+                            <time datetime={event.date} class="text-xs text-secondary/60 whitespace-nowrap">
+                              {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </time>
+                          </div>
+                          <h3 id={`event-title-${event.id}`} class="font-semibold text-secondary mb-1">
+                            {event.title}
+                          </h3>
+                          <p class="text-sm text-secondary/80 leading-relaxed">{event.blurb}</p>
+                          {event.tags && event.tags.length > 0 && (
+                            <div class="flex flex-wrap gap-2 mt-3">
+                              {event.tags.map(tag => (
+                                <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- Mobile Layout -->
+  <div class="md:hidden">
+    <div class="relative pl-8">
+      {/* Timeline line */}
+      <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-accent/30"></div>
+
+      {sortedYears.map((year) => {
+        const yearPeriods = getPeriodsForYear(year);
+        const yearEvents = eventsByYear.get(year) || [];
+
+        return (
+          <div class="mb-8">
+            {/* Year marker */}
+            <div class="absolute left-0 -translate-x-1/2 mb-4">
+              <div class="h-6 w-6 rounded-full border-2 border-accent bg-primary flex items-center justify-center">
+                <span class="text-xs font-bold text-accent">{year.toString().slice(2)}</span>
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <h3 class="text-lg font-bold text-secondary mb-4">{year}</h3>
+
+              {/* Periods */}
+              {yearPeriods.map((period) => (
+                <div class="mb-4 rounded-lg border border-secondary/20 bg-primary p-3">
+                  <div class="flex items-center gap-2 mb-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 text-accent"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      set:html={periodIcons[period.type]}
+                    />
+                    <span class="text-xs font-medium text-accent uppercase">
+                      {periodLabels[period.type]}
+                    </span>
+                  </div>
+                  <h4 class="font-semibold text-secondary mb-1">{period.title}</h4>
+                  <p class="text-sm text-secondary/70 mb-2">{period.organisation}</p>
+                  <p class="text-sm text-secondary/80">{period.blurb}</p>
+                </div>
+              ))}
+
+              {/* Event markers */}
+              {yearEvents.map((event) => (
+                <button
+                  class="mobile-event-marker mb-2 w-full text-left rounded-lg border border-secondary/20 bg-primary p-3 hover:border-accent transition-colors"
+                  data-event-id={event.id}
+                >
+                  <div class="flex items-center gap-2">
+                    <div class="h-2 w-2 rounded-full bg-accent"></div>
+                    <span class="text-sm font-medium text-secondary">{event.title}</span>
+                    <span class="text-xs text-secondary/60 ml-auto">
+                      {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
   </div>
 </section>
 
+<!-- Mobile Event Modal -->
+<div id="event-modal" class="md:hidden fixed inset-0 bg-primary/95 backdrop-blur-sm z-50 hidden overflow-y-auto">
+  <div class="min-h-screen px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      <button
+        id="close-modal"
+        class="mb-4 flex items-center gap-2 text-secondary/70 hover:text-accent transition-colors"
+        aria-label="Close modal"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span>Close</span>
+      </button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+</div>
+
 <style>
-  /* Smooth scroll behavior for the timeline */
-  #experience-and-education {
-    scroll-behavior: smooth;
+  @media (prefers-reduced-motion: reduce) {
+    .period-card,
+    .event-card,
+    .mobile-event-marker {
+      transition: none;
+    }
+  }
+
+  .period-card:hover,
+  .period-card:focus {
+    transform: scale(1.02);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .period-card:hover,
+    .period-card:focus {
+      transform: none;
+    }
   }
 </style>
+
+<script>
+  // Mobile event modal functionality
+  const modal = document.getElementById('event-modal');
+  const modalContent = document.getElementById('modal-content');
+  const closeBtn = document.getElementById('close-modal');
+
+  // Store scroll position
+  let scrollPosition = 0;
+
+  document.querySelectorAll('.mobile-event-marker').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const eventId = (e.currentTarget as HTMLElement).dataset.eventId;
+      const eventEl = document.getElementById(`event-${eventId}`);
+
+      if (eventEl && modal && modalContent) {
+        scrollPosition = window.scrollY;
+        modalContent.innerHTML = eventEl.innerHTML;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  });
+
+  closeBtn?.addEventListener('click', () => {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollPosition);
+    }
+  });
+
+  // Close on escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollPosition);
+    }
+  });
+</script>
