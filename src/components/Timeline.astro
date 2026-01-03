@@ -37,15 +37,15 @@ const { ordering = 'reverse' } = Astro.props;
 const periods: Period[] = timelineData.periods;
 const events: Event[] = timelineData.events;
 
-// Calculate year range and segments
+// Calculate year range
 function getYear(dateStr: string | null): number {
   if (!dateStr) return new Date().getFullYear();
   return new Date(dateStr).getFullYear();
 }
 
+// Get all years that have content
 const allYears = new Set<number>();
 
-// Add years from periods
 periods.forEach(period => {
   const startYear = getYear(period.startDate);
   const endYear = getYear(period.endDate);
@@ -54,7 +54,6 @@ periods.forEach(period => {
   }
 });
 
-// Add years from events
 events.forEach(event => {
   allYears.add(getYear(event.date));
 });
@@ -82,14 +81,25 @@ eventsByYear.forEach(yearEvents => {
   });
 });
 
-// Get periods active in a given year
-function getPeriodsForYear(year: number): Period[] {
-  return periods.filter(period => {
-    const startYear = getYear(period.startDate);
-    const endYear = getYear(period.endDate);
-    return year >= startYear && year <= endYear;
-  });
-}
+// Sort periods by start date
+const sortedPeriods = [...periods].sort((a, b) => {
+  const dateA = new Date(a.startDate).getTime();
+  const dateB = new Date(b.startDate).getTime();
+  return ordering === 'chronological' ? dateA - dateB : dateB - dateA;
+});
+
+// Group periods by year (includes all years the period spans)
+const periodsByYear = new Map<number, Period[]>();
+periods.forEach(period => {
+  const startYear = getYear(period.startDate);
+  const endYear = getYear(period.endDate);
+  for (let year = startYear; year < endYear + 1; year++) {
+    if (!periodsByYear.has(year)) {
+      periodsByYear.set(year, []);
+    }
+    periodsByYear.get(year)!.push(period);
+  }
+});
 
 // Type icons
 const periodIcons = {
@@ -133,101 +143,41 @@ const eventLabels = {
   <!-- Desktop Layout -->
   <div class="hidden md:block">
     <div class="relative">
+      <!-- Continuous center timeline line -->
+      <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-accent/30 -translate-x-1/2 z-0"></div>
+
+      {/* Render year segments for timeline structure */}
       {sortedYears.map((year, yearIndex) => {
-        const yearPeriods = getPeriodsForYear(year);
         const yearEvents = eventsByYear.get(year) || [];
-        const hasContent = yearPeriods.length > 0 || yearEvents.length > 0;
+        const hasEvents = yearEvents.length > 0;
 
         return (
           <div
-            class={`relative ${hasContent ? 'min-h-[200px] mb-12' : 'h-12'}`}
+            class={`relative ${hasEvents ? 'min-h-[300px]' : 'min-h-[80px]'}`}
             data-year={year}
+            id={`year-${year}`}
           >
-            {/* Year marker on center line */}
-            <div class="absolute left-1/2 top-0 -translate-x-1/2 z-20">
-              <div class="flex items-center gap-2">
-                <div class="h-8 w-8 rounded-full border-2 border-accent bg-primary flex items-center justify-center">
-                  <span class="text-xs font-bold text-accent">{year}</span>
-                </div>
+            {/* Year marker - gap label style */}
+            <div class="absolute left-1/2 top-8 -translate-x-1/2 z-10">
+              <div class="px-3 py-1 bg-primary">
+                <span class="text-xs font-medium text-secondary/70">{year}</span>
               </div>
             </div>
 
-            {/* Center timeline line */}
-            <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-accent/30 -translate-x-1/2"></div>
-
             {/* Three-column grid */}
-            <div class="grid grid-cols-[1fr_auto_1fr] gap-8 pt-12">
-              {/* Left: Periods */}
-              <div class="flex flex-col gap-4 pr-4">
-                {yearPeriods.map((period) => {
-                  const isStart = getYear(period.startDate) === year;
-                  const isEnd = getYear(period.endDate) === year;
-                  const isCurrent = period.endDate === null;
+            <div class="grid grid-cols-[1fr_auto_1fr] gap-8 pt-20">
+              {/* Left: Period sticky containers (handled separately below) */}
+              <div class="period-lane"></div>
 
-                  return (
-                    <div
-                      id={`period-${period.id}`}
-                      class="period-card group rounded-lg border border-secondary/20 bg-primary p-4 transition-all hover:border-accent hover:shadow-lg focus-within:border-accent focus-within:shadow-lg"
-                      tabindex="0"
-                      role="article"
-                      aria-labelledby={`period-title-${period.id}`}
-                    >
-                      <div class="flex items-start gap-3 mb-2">
-                        <div class="flex-shrink-0 h-8 w-8 rounded-full border border-accent/50 bg-accent/10 flex items-center justify-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4 text-accent"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            set:html={periodIcons[period.type]}
-                            aria-hidden="true"
-                          />
-                        </div>
-                        <div class="flex-1 min-w-0">
-                          <div class="flex items-start justify-between gap-2 mb-1">
-                            <span class="text-xs font-medium text-accent uppercase tracking-wide">
-                              {periodLabels[period.type]}
-                            </span>
-                            <span class="text-xs text-secondary/60 whitespace-nowrap">
-                              {new Date(period.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                              {' - '}
-                              {isCurrent ? 'Present' : new Date(period.endDate!).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                            </span>
-                          </div>
-                          <h3 id={`period-title-${period.id}`} class="font-semibold text-secondary mb-1">
-                            {period.title}
-                          </h3>
-                          <p class="text-sm text-secondary/70 mb-2">{period.organisation}</p>
-                          {period.location && (
-                            <p class="text-xs text-secondary/50 mb-2">{period.location}</p>
-                          )}
-                          <p class="text-sm text-secondary/80 leading-relaxed">{period.blurb}</p>
-                          {period.tags && period.tags.length > 0 && (
-                            <div class="flex flex-wrap gap-2 mt-3">
-                              {period.tags.map(tag => (
-                                <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Center: Timeline line (handled by absolute positioning above) */}
+              {/* Center: spacer for timeline line */}
               <div class="w-0"></div>
 
               {/* Right: Events */}
-              <div class="flex flex-col gap-4 pl-4">
+              <div class="flex flex-col gap-6 pl-4">
                 {yearEvents.map((event) => (
                   <div class="relative">
                     {/* Event dot on center line */}
-                    <div class="absolute right-full top-4 mr-4 translate-x-1/2">
+                    <div class="absolute right-full top-4 mr-4 translate-x-1/2 z-10">
                       <div class="h-3 w-3 rounded-full bg-accent border-2 border-primary"></div>
                       {/* Connector line */}
                       <svg class="absolute left-full top-1/2 -translate-y-1/2 ml-1" width="16" height="2">
@@ -286,32 +236,107 @@ const eventLabels = {
           </div>
         );
       })}
+
+      {/* Render periods with sticky behavior - positioned absolutely */}
+      {sortedPeriods.map((period) => {
+        const startYear = getYear(period.startDate);
+        const endYear = getYear(period.endDate);
+        const isCurrent = period.endDate === null;
+
+        // Calculate approximate positions for sticky behavior
+        const startIndex = sortedYears.indexOf(startYear);
+        const endIndex = sortedYears.indexOf(endYear);
+
+        return (
+          <div
+            class="period-sticky-container absolute left-0 top-0 z-5"
+            style={`
+              top: ${startIndex * 300}px;
+              height: ${(endIndex - startIndex + 1) * 300}px;
+              width: calc(50% - 4rem);
+            `}
+          >
+            <div class="sticky top-24 pr-8">
+              <div
+                id={`period-${period.id}`}
+                class="period-card group rounded-lg border border-secondary/20 bg-primary p-4 transition-all hover:border-accent hover:shadow-lg hover:scale-[1.02] focus-within:border-accent focus-within:shadow-lg focus-within:scale-[1.02]"
+                tabindex="0"
+                role="article"
+                aria-labelledby={`period-title-${period.id}`}
+              >
+                <div class="flex items-start gap-3 mb-2">
+                  <div class="flex-shrink-0 h-8 w-8 rounded-full border border-accent/50 bg-accent/10 flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 text-accent"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      set:html={periodIcons[period.type]}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-2 mb-1">
+                      <span class="text-xs font-medium text-accent uppercase tracking-wide">
+                        {periodLabels[period.type]}
+                      </span>
+                      <span class="text-xs text-secondary/60 whitespace-nowrap">
+                        {new Date(period.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                        {' - '}
+                        {isCurrent ? 'Present' : new Date(period.endDate!).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <h3 id={`period-title-${period.id}`} class="font-semibold text-secondary mb-1 text-lg">
+                      {period.title}
+                    </h3>
+                    <p class="text-sm text-secondary/70 mb-2">{period.organisation}</p>
+                    {period.location && (
+                      <p class="text-xs text-secondary/50 mb-2">{period.location}</p>
+                    )}
+                    <p class="text-sm text-secondary/80 leading-relaxed">{period.blurb}</p>
+                    {period.tags && period.tags.length > 0 && (
+                      <div class="flex flex-wrap gap-2 mt-3">
+                        {period.tags.map(tag => (
+                          <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   </div>
 
   <!-- Mobile Layout -->
   <div class="md:hidden">
     <div class="relative pl-8">
-      {/* Timeline line */}
+      <!-- Timeline line -->
       <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-accent/30"></div>
 
       {sortedYears.map((year) => {
-        const yearPeriods = getPeriodsForYear(year);
         const yearEvents = eventsByYear.get(year) || [];
+        const yearPeriods = periodsByYear.get(year) || [];
 
-        return (
+        return yearPeriods.length > 0 || yearEvents.length > 0 ? (
           <div class="mb-8">
-            {/* Year marker */}
+            <!-- Year marker - gap label style -->
             <div class="absolute left-0 -translate-x-1/2 mb-4">
-              <div class="h-6 w-6 rounded-full border-2 border-accent bg-primary flex items-center justify-center">
-                <span class="text-xs font-bold text-accent">{year.toString().slice(2)}</span>
+              <div class="px-2 py-0.5 bg-primary">
+                <span class="text-xs font-medium text-secondary/70">{year.toString().slice(2)}</span>
               </div>
             </div>
 
-            <div class="pt-2">
+            <div class="pt-8">
               <h3 class="text-lg font-bold text-secondary mb-4">{year}</h3>
 
-              {/* Periods */}
+              <!-- Periods -->
               {yearPeriods.map((period) => (
                 <div class="mb-4 rounded-lg border border-secondary/20 bg-primary p-3">
                   <div class="flex items-center gap-2 mb-2">
@@ -333,7 +358,7 @@ const eventLabels = {
                 </div>
               ))}
 
-              {/* Event markers */}
+              <!-- Event markers -->
               {yearEvents.map((event) => (
                 <button
                   class="mobile-event-marker mb-2 w-full text-left rounded-lg border border-secondary/20 bg-primary p-3 hover:border-accent transition-colors"
@@ -350,7 +375,7 @@ const eventLabels = {
               ))}
             </div>
           </div>
-        );
+        ) : null;
       })}
     </div>
   </div>
@@ -394,6 +419,15 @@ const eventLabels = {
     .period-card:focus {
       transform: none;
     }
+  }
+
+  /* Ensure period cards layer properly */
+  .period-sticky-container {
+    pointer-events: none;
+  }
+
+  .period-sticky-container .period-card {
+    pointer-events: all;
   }
 </style>
 
