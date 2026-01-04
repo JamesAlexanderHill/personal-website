@@ -1,9 +1,0 @@
-#timeline {
-  --x-offset: 2rem;
-}
-
-@media (width > 40rem) {
-  #timeline {
-    --x-offset: 50%;
-  }
-}
