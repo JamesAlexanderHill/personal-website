@@ -97,27 +97,27 @@ const uniquePoints = timelinePoints.filter((point, index, arr) =>
   index === 0 || point.timestamp !== arr[index - 1].timestamp
 );
 
-// Calculate Y position for each timestamp (150px per point)
-const PIXELS_PER_POINT = 150;
-const timestampToY = new Map<number, number>();
+// Calculate row positions (5 rows per point for spacing)
+const ROWS_PER_POINT = 5;
+const timestampToRow = new Map<number, number>();
 uniquePoints.forEach((point, index) => {
-  timestampToY.set(point.timestamp, index * PIXELS_PER_POINT);
+  timestampToRow.set(point.timestamp, index * ROWS_PER_POINT + 1);
 });
 
-// Calculate total height
-const totalHeight = (uniquePoints.length - 1) * PIXELS_PER_POINT + 500; // Extra space at bottom
+// Calculate total rows
+const totalRows = uniquePoints.length * ROWS_PER_POINT;
 
-// Helper to get Y position for a date
-function getYForDate(dateStr: string | null): number {
-  if (!dateStr) return totalHeight - 500;
+// Helper to get row number for a date
+function getRowForDate(dateStr: string | null): number {
+  if (!dateStr) return totalRows;
   const timestamp = new Date(dateStr).getTime();
-  return timestampToY.get(timestamp) || 0;
+  return timestampToRow.get(timestamp) || 1;
 }
 
 // Calculate year markers
 interface YearMarker {
   year: number;
-  y: number;
+  row: number;
 }
 
 const yearMarkers: YearMarker[] = [];
@@ -128,7 +128,7 @@ uniquePoints.forEach(point => {
     seenYears.add(point.year);
     yearMarkers.push({
       year: point.year,
-      y: timestampToY.get(point.timestamp) || 0
+      row: timestampToRow.get(point.timestamp) || 1
     });
   }
 });
@@ -136,30 +136,42 @@ uniquePoints.forEach(point => {
 // Calculate period positions
 interface PeriodPosition {
   period: Period;
-  y: number;
-  height: number;
+  startRow: number;
+  rowSpan: number;
 }
 
 const periodPositions: PeriodPosition[] = periods.map(period => {
-  const startY = getYForDate(period.startDate);
-  const endY = getYForDate(period.endDate);
+  const startRow = getRowForDate(period.startDate);
+  const endRow = getRowForDate(period.endDate);
   return {
     period,
-    y: startY,
-    height: endY - startY
+    startRow,
+    rowSpan: Math.max(1, endRow - startRow + 1)
   };
 });
 
 // Calculate event positions
 interface EventPosition {
   event: Event;
-  y: number;
+  row: number;
+  rowSpan: number;
 }
 
-const eventPositions: EventPosition[] = events.map(event => ({
-  event,
-  y: getYForDate(event.date)
-}));
+const eventPositions: EventPosition[] = events.map(event => {
+  const row = getRowForDate(event.date);
+  return {
+    event,
+    row,
+    rowSpan: 5 // Each event spans 5 rows for spacing
+  };
+});
+
+// Generate timeline rail cells (for year markers and spacing)
+const railCells = Array.from({ length: totalRows }, (_, i) => {
+  const row = i + 1;
+  const yearMarker = yearMarkers.find(m => m.row === row);
+  return { row, yearMarker };
+});
 
 // Type icons and labels
 const periodIcons = {
@@ -202,124 +214,129 @@ const eventLabels = {
 
   <!-- Desktop Layout -->
   <div class="hidden md:block">
-    <div class="timeline-container" style={`height: ${totalHeight}px;`}>
-      <!-- Periods Column -->
-      <div class="timeline-column periods-column">
-        {periodPositions.map(pos => {
-          const { period, y, height } = pos;
-          const isCurrent = period.endDate === null;
+    <div class="timeline-container" style={`grid-template-rows: repeat(${totalRows}, auto);`}>
+      <!-- Timeline rail cells with year markers -->
+      {railCells.map(cell => (
+        <div class={`col-start-2 year-marker ${cell.yearMarker ? '' : 'empty'}`} style={`grid-row-start: ${cell.row};`}>
+          {cell.yearMarker && cell.yearMarker.year}
+        </div>
+      ))}
 
-          return (
-            <div class="period" style={`top: ${y}px; height: ${height}px;`}>
-              <div>
-                <div class="flex items-start gap-3">
-                  <div class="flex-shrink-0 h-8 w-8 rounded-full border border-accent/50 bg-accent/10 flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4 text-accent"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      set:html={periodIcons[period.type]}
-                      aria-hidden="true"
-                    />
+      <!-- Periods -->
+      {periodPositions.map(pos => {
+        const { period, startRow, rowSpan } = pos;
+        const isCurrent = period.endDate === null;
+
+        return (
+          <div
+            class="col-start-1 period"
+            style={`grid-row-start: ${startRow}; grid-row-end: span ${rowSpan};`}
+          >
+            <div>
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 h-8 w-8 rounded-full border border-accent/50 bg-accent/10 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 text-accent"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    set:html={periodIcons[period.type]}
+                    aria-hidden="true"
+                  />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2 mb-1">
+                    <span class="text-xs font-medium text-accent uppercase tracking-wide">
+                      {periodLabels[period.type]}
+                    </span>
+                    <span class="text-xs text-secondary/60 whitespace-nowrap">
+                      {formatDate(period.startDate)} - {isCurrent ? 'Present' : formatDate(period.endDate)}
+                    </span>
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start justify-between gap-2 mb-1">
-                      <span class="text-xs font-medium text-accent uppercase tracking-wide">
-                        {periodLabels[period.type]}
-                      </span>
-                      <span class="text-xs text-secondary/60 whitespace-nowrap">
-                        {formatDate(period.startDate)} - {isCurrent ? 'Present' : formatDate(period.endDate)}
-                      </span>
+                  <h3 class="font-semibold text-secondary mb-1 text-lg">
+                    {period.title}
+                  </h3>
+                  <p class="text-sm text-secondary/70 mb-2">{period.organisation}</p>
+                  {period.location && (
+                    <p class="text-xs text-secondary/50 mb-2">{period.location}</p>
+                  )}
+                  <p class="text-sm text-secondary/80 leading-relaxed">{period.blurb}</p>
+                  {period.tags && period.tags.length > 0 && (
+                    <div class="flex flex-wrap gap-2 mt-3">
+                      {period.tags.map(tag => (
+                        <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
-                    <h3 class="font-semibold text-secondary mb-1 text-lg">
-                      {period.title}
-                    </h3>
-                    <p class="text-sm text-secondary/70 mb-2">{period.organisation}</p>
-                    {period.location && (
-                      <p class="text-xs text-secondary/50 mb-2">{period.location}</p>
-                    )}
-                    <p class="text-sm text-secondary/80 leading-relaxed">{period.blurb}</p>
-                    {period.tags && period.tags.length > 0 && (
-                      <div class="flex flex-wrap gap-2 mt-3">
-                        {period.tags.map(tag => (
-                          <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      <!-- Timeline Rail Column -->
-      <div class="timeline-column rail-column">
-        <!-- Vertical line -->
-        <div class="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-accent/30"></div>
-
-        <!-- Year markers -->
-        {yearMarkers.map(marker => (
-          <div class="year-marker" style={`top: ${marker.y}px;`}>
-            {marker.year}
           </div>
-        ))}
-      </div>
+        );
+      })}
 
-      <!-- Events Column -->
-      <div class="timeline-column events-column">
-        {eventPositions.map(pos => {
-          const { event, y } = pos;
+      <!-- Events -->
+      {eventPositions.map(pos => {
+        const { event, row, rowSpan } = pos;
 
-          return (
-            <div class="event" style={`top: ${y}px;`}>
-              <div>
-                <div class="flex items-start gap-3">
-                  <div class="flex-shrink-0 h-8 w-8 rounded-full border border-accent/50 bg-accent/10 flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4 text-accent"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      set:html={eventIcons[event.type]}
-                      aria-hidden="true"
-                    />
+        return (
+          <div
+            class="col-start-3 event"
+            style={`grid-row-start: ${row}; grid-row-end: span ${rowSpan};`}
+          >
+            <!-- Connector dot and line -->
+            <span class="absolute top-2">
+              <!-- Horizontal line -->
+              <div class="absolute w-10 -left-10 bg-accent/50 h-0.5"></div>
+              <!-- Dot -->
+              <div class="absolute -left-10 -translate-x-1/2 -translate-y-1/2">
+                <div class="flex-shrink-0 h-6 w-6 rounded-full border-2 border-accent bg-primary flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3 w-3 text-accent"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    set:html={eventIcons[event.type]}
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
+            </span>
+
+            <div>
+              <div class="flex items-start gap-3">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2 mb-1">
+                    <span class="text-xs font-medium text-accent uppercase tracking-wide">
+                      {eventLabels[event.type]}
+                    </span>
+                    <time datetime={event.date} class="text-xs text-secondary/60 whitespace-nowrap">
+                      {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </time>
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start justify-between gap-2 mb-1">
-                      <span class="text-xs font-medium text-accent uppercase tracking-wide">
-                        {eventLabels[event.type]}
-                      </span>
-                      <time datetime={event.date} class="text-xs text-secondary/60 whitespace-nowrap">
-                        {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </time>
+                  <h3 class="font-semibold text-secondary mb-1">
+                    {event.title}
+                  </h3>
+                  <p class="text-sm text-secondary/80 leading-relaxed">{event.blurb}</p>
+                  {event.tags && event.tags.length > 0 && (
+                    <div class="flex flex-wrap gap-2 mt-3">
+                      {event.tags.map(tag => (
+                        <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
-                    <h3 class="font-semibold text-secondary mb-1">
-                      {event.title}
-                    </h3>
-                    <p class="text-sm text-secondary/80 leading-relaxed">{event.blurb}</p>
-                    {event.tags && event.tags.length > 0 && (
-                      <div class="flex flex-wrap gap-2 mt-3">
-                        {event.tags.map(tag => (
-                          <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
   </div>
 
@@ -332,7 +349,7 @@ const eventLabels = {
 
         {yearMarkers.map(marker => (
           <div class="relative py-4 flex justify-center">
-            <div class="px-2 py-0.5" style="background-color: #0f172a;">
+            <div class="px-2 py-0.5 bg-primary">
               <span class="text-xs font-medium text-secondary/70">{marker.year.toString().slice(2)}</span>
             </div>
           </div>
@@ -405,51 +422,47 @@ const eventLabels = {
 
 <style>
   .timeline-container {
-    display: flex;
-    gap: 0;
+    display: grid;
+    grid-template-columns: 1fr 70px 1fr;
     position: relative;
   }
 
-  .timeline-column {
-    position: relative;
-    flex-shrink: 0;
-  }
-
-  .periods-column {
-    flex: 1;
-    padding-right: 1rem;
-  }
-
-  .rail-column {
-    width: 70px;
-    position: relative;
-  }
-
-  .events-column {
-    flex: 1;
-    padding-left: 1rem;
+  /* Timeline rail - vertical line spans all rows */
+  .timeline-container::before {
+    content: "";
+    position: absolute;
+    left: calc(50% + 35px);
+    transform: translateX(-50%);
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgb(251 146 60 / 0.3);
+    z-index: 0;
   }
 
   .year-marker {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: #0f172a;
     border-radius: 9999px;
+    margin: 0 0.75rem;
+    font-size: 0.75rem;
     padding: 0 0.5rem;
     z-index: 10;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: rgb(209 213 219 / 0.7);
+    position: relative;
+  }
+
+  .year-marker.empty {
+    background: transparent;
   }
 
   .period,
   .event {
-    position: absolute;
-    width: 100%;
     border: 1px solid rgb(251 146 60 / 0.3);
     border-radius: 0.5rem;
     padding: 0.5rem;
+    position: relative;
   }
 
   .period > div,
@@ -469,15 +482,9 @@ const eventLabels = {
   }
 
   .period:before {
-    right: -1rem;
+    right: -35px;
     width: 35px;
     background: linear-gradient(to left, rgb(251 146 60 / 0.1) 0%, transparent 100%);
-  }
-
-  .event:before {
-    left: -1rem;
-    width: 50px;
-    background: linear-gradient(to right, rgb(251 146 60 / 0.1) 0%, transparent 100%);
   }
 
   @media (prefers-reduced-motion: reduce) {
