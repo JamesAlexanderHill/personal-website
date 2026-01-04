@@ -1,6 +1,5 @@
 ---
 import timelineData from './timeline.json';
-import './styles.css';
 
 interface Period {
   id: string;
@@ -106,9 +105,13 @@ const eventLabels = {
           {yearEvents.length > 0 ? (
             yearEvents.map(event => (
               <div class="flex gap-x-2 my-2 -translate-x-8 group" style="margin-left: var(--x-offset);">
-                <!-- Icon/dot -->
+                <!-- Icon/dot (clickable on mobile) -->
                 <div class="w-16 flex-shrink-0">
-                  <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary border-2 translate-x-[1px] border-accent flex items-center justify-center mx-auto">
+                  <button
+                    class="mobile-event-icon sm:pointer-events-none flex-shrink-0 h-8 w-8 rounded-full bg-primary border-2 translate-x-[1px] border-accent flex items-center justify-center mx-auto transition-transform hover:scale-110 sm:hover:scale-100"
+                    data-event-id={event.id}
+                    aria-label={`View ${event.title}`}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       class="h-5 w-5 text-accent"
@@ -118,11 +121,11 @@ const eventLabels = {
                       set:html={eventIcons[event.type]}
                       aria-hidden="true"
                     />
-                  </div>
+                  </button>
                 </div>
 
                 <!-- Event content -->
-                <div class="grow max-w-md mr-4 hidden sm:block">
+                <div class="grow max-w-md mr-4 hidden sm:block" data-event-content={event.id}>
                   <div class="border-2 border-accent/30 group-hover:border-accent p-2 rounded-md transition-colors">
                     <div class="flex items-start gap-3">
                       <div class="flex-1 min-w-0">
@@ -172,9 +175,29 @@ const eventLabels = {
   </div>
 </section>
 
+<!-- Mobile Event Modal -->
+<div id="event-modal" class="sm:hidden fixed inset-0 bg-primary/95 backdrop-blur-sm z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="min-h-screen px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      <button
+        id="close-modal"
+        class="mb-4 flex items-center gap-2 text-secondary/70 hover:text-accent transition-colors"
+        aria-label="Close modal"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span>Close</span>
+      </button>
+      <div id="modal-content" class="border-2 border-accent/30 p-4 rounded-md bg-primary"></div>
+    </div>
+  </div>
+</div>
+
 <style>
   @media (prefers-reduced-motion: reduce) {
-    .border-accent {
+    .border-accent,
+    .mobile-event-icon {
       transition: none;
     }
   }
@@ -188,3 +211,80 @@ const eventLabels = {
     }
   }
 </style>
+
+<script>
+  // Mobile event modal functionality
+  const modal = document.getElementById('event-modal');
+  const modalContent = document.getElementById('modal-content');
+  const closeBtn = document.getElementById('close-modal');
+
+  let scrollPosition = 0;
+  let focusedElement: HTMLElement | null = null;
+
+  // Add click handlers to mobile event icons
+  document.querySelectorAll('.mobile-event-icon').forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      const eventId = (e.currentTarget as HTMLElement).dataset.eventId;
+
+      // Find the event content
+      const eventContent = document.querySelector(`[data-event-content="${eventId}"]`);
+
+      if (eventContent && modal && modalContent) {
+        focusedElement = e.currentTarget as HTMLElement;
+        scrollPosition = window.scrollY;
+
+        // Clone the content into the modal
+        modalContent.innerHTML = eventContent.innerHTML;
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        // Focus close button
+        closeBtn?.focus();
+      }
+    });
+  });
+
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollPosition);
+
+      // Return focus
+      if (focusedElement) {
+        focusedElement.focus();
+        focusedElement = null;
+      }
+    }
+  }
+
+  closeBtn?.addEventListener('click', closeModal);
+
+  // Close on escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+      closeModal();
+    }
+  });
+
+  // Trap focus in modal
+  modal?.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && !modal.classList.contains('hidden')) {
+      const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+</script>
