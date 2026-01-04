@@ -1,9 +1,10 @@
 ---
-import timelineData from '../data/timeline.json';
+import timelineData from './timeline.json';
+import './styles.css';
 
 interface Period {
   id: string;
-  type: 'work' | 'education' | 'volunteer' | 'project' | 'other';
+  type: string;
   title: string;
   organisation: string;
   location?: string;
@@ -17,7 +18,7 @@ interface Period {
 
 interface Event {
   id: string;
-  type: 'conference' | 'presentation' | 'publication' | 'award' | 'milestone' | 'other';
+  type: string;
   title: string;
   date: string;
   venue?: string;
@@ -85,7 +86,7 @@ const eventLabels = {
 };
 ---
 
-<section id="timeline" class="scroll-mt-20 py-12 relative" style="--x-offset: 50%;" aria-label="Professional timeline">
+<section id="timeline" class="scroll-mt-20 py-12 relative" aria-label="Professional timeline">
   <h2 class="mb-8 text-2xl font-bold text-secondary">Experience & Education</h2>
 
   <!-- Desktop/Mobile Layout -->
@@ -104,7 +105,7 @@ const eventLabels = {
         <>
           {yearEvents.length > 0 ? (
             yearEvents.map(event => (
-              <div class="flex gap-x-2 my-2 -translate-x-8" style="margin-left: var(--x-offset);">
+              <div class="flex gap-x-2 my-2 -translate-x-8 group" style="margin-left: var(--x-offset);">
                 <!-- Icon/dot -->
                 <div class="w-16 flex-shrink-0">
                   <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary border-2 translate-x-[1px] border-accent flex items-center justify-center mx-auto">
@@ -122,7 +123,7 @@ const eventLabels = {
 
                 <!-- Event content -->
                 <div class="grow max-w-md mr-4">
-                  <div class="border-2 border-accent/30 p-2 rounded-md hover:border-accent transition-colors">
+                  <div class="border-2 border-accent/30 group-hover:border-accent p-2 rounded-md transition-colors">
                     <div class="flex items-start gap-3">
                       <div class="flex-1 min-w-0">
                         <div class="flex items-start justify-between gap-2 mb-1">
