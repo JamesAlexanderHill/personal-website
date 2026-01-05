@@ -1,0 +1,15 @@
+---
+interface Props {
+  year: number;
+}
+
+const { year } = Astro.props;
+---
+
+<p
+  class="-translate-x-8 w-16 text-xs text-secondary/70 flex justify-center items-center bg-primary rounded-full my-3 py-1 year-marker after:bg-accent-color after:content-[''] after:absolute after:block after:bottom-0 after:left-1/2 after:translate-x-[-2px] after:translate-y-1/2 after:w-[6px] after:h-[6px] after:rounded-full after:bg-accent"
+  data-year={year}
+  style="margin-left: var(--x-offset);"
+>
+  {year}
+</p>
