@@ -83,15 +83,107 @@ const eventLabels = {
   milestone: 'Milestone',
   other: 'Event',
 };
+
+const periodIcons = {
+  work: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />`,
+  education: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />`,
+  volunteer: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />`,
+  project: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />`,
+  other: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />`,
+};
+
+const periodLabels = {
+  work: 'Employment',
+  education: 'Education',
+  volunteer: 'Volunteer',
+  project: 'Project',
+  other: 'Other',
+};
 ---
 
 <section id="timeline" class="scroll-mt-20 py-12 relative" aria-label="Professional timeline">
   <h2 class="mb-8 text-2xl font-bold text-secondary">Experience & Education</h2>
 
   <!-- Desktop/Mobile Layout -->
-  <div class="relative">
+  <div class="relative" id="timeline-container">
     <!-- Timeline rail (vertical line) -->
     <div class="absolute top-0 -z-10 border-accent border-l-2 min-h-[100px] h-full" style="left: var(--x-offset);"></div>
+
+    <!-- Period cards (absolutely positioned, heights calculated from DOM) -->
+    {periods.map(period => {
+      const startYear = new Date(period.startDate).getFullYear();
+      const endYear = period.endDate ? new Date(period.endDate).getFullYear() : new Date().getFullYear();
+
+      return (
+        <div
+          class="period-card absolute hidden sm:block w-64 opacity-0 transition-opacity duration-300"
+          data-period-id={period.id}
+          data-start-year={startYear}
+          data-end-year={endYear}
+          style="right: calc(50% + 3rem);"
+        >
+          <div class="h-full border-2 border-accent/30 hover:border-accent rounded-md p-3 bg-primary/50 backdrop-blur-sm transition-colors relative overflow-hidden">
+            <!-- Gradient pointing toward timeline -->
+            <div class="absolute inset-y-0 -right-12 w-12 bg-gradient-to-r from-accent/10 to-transparent pointer-events-none"></div>
+
+            <div class="relative z-10">
+              <div class="flex items-start gap-3 mb-2">
+                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary border-2 border-accent flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 text-accent"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    set:html={periodIcons[period.type]}
+                    aria-hidden="true"
+                  />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="text-xs font-medium text-accent uppercase tracking-wide block mb-1">
+                    {periodLabels[period.type]}
+                  </span>
+                  <h3 class="font-semibold text-secondary text-sm leading-tight">
+                    {period.title}
+                  </h3>
+                  <p class="text-xs text-secondary/70 mt-0.5">
+                    {period.organisation}
+                  </p>
+                </div>
+              </div>
+
+              <div class="text-xs text-secondary/60 mb-2">
+                {new Date(period.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                {' - '}
+                {period.endDate
+                  ? new Date(period.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                  : 'Present'
+                }
+              </div>
+
+              <p class="text-xs text-secondary/80 leading-relaxed mb-2">
+                {period.blurb}
+              </p>
+
+              {period.tags && period.tags.length > 0 && (
+                <div class="flex flex-wrap gap-1">
+                  {period.tags.slice(0, 3).map(tag => (
+                    <span class="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
+                      {tag}
+                    </span>
+                  ))}
+                  {period.tags.length > 3 && (
+                    <span class="text-xs px-1.5 py-0.5 text-secondary/60">
+                      +{period.tags.length - 3}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    })}
 
     <!-- Gradient fade at top -->
     <div class="h-4 bg-gradient-to-t from-transparent to-primary"></div>
@@ -163,7 +255,7 @@ const eventLabels = {
           )}
 
           <!-- Year marker -->
-          <p class="-translate-x-8 w-16 text-xs text-secondary/70 flex justify-center items-center bg-primary rounded-full my-2" style="margin-left: var(--x-offset);">
+          <p class="-translate-x-8 w-16 text-xs text-secondary/70 flex justify-center items-center bg-primary rounded-full my-2 year-marker" data-year={year} style="margin-left: var(--x-offset);">
             {year}
           </p>
         </>
@@ -197,10 +289,12 @@ const eventLabels = {
 <style>
   @media (prefers-reduced-motion: reduce) {
     .border-accent,
-    .mobile-event-icon {
+    .mobile-event-icon,
+    .period-card {
       transition: none;
     }
   }
+
   #timeline {
     --x-offset: 2rem;
   }
@@ -208,6 +302,18 @@ const eventLabels = {
   @media (width > 40rem) {
     #timeline {
       --x-offset: 50%;
+    }
+
+    /* Position period cards to the left of center timeline on desktop */
+    .period-card {
+      right: calc(50% + 3rem) !important;
+    }
+  }
+
+  /* Ensure period cards don't overflow on smaller screens */
+  @media (width <= 40rem) {
+    .period-card {
+      display: none;
     }
   }
 </style>
@@ -287,4 +393,46 @@ const eventLabels = {
       }
     }
   });
+
+  // Position period cards based on DOM year markers
+  function positionPeriodCards() {
+    const container = document.getElementById('timeline-container');
+    if (!container) return;
+
+    const containerTop = container.offsetTop;
+
+    document.querySelectorAll('.period-card').forEach(card => {
+      const element = card as HTMLElement;
+      const startYear = element.dataset.startYear;
+      const endYear = element.dataset.endYear;
+
+      if (!startYear || !endYear) return;
+
+      // Find year markers for start and end years
+      const startMarker = document.querySelector(`.year-marker[data-year="${startYear}"]`) as HTMLElement;
+      const endMarker = document.querySelector(`.year-marker[data-year="${endYear}"]`) as HTMLElement;
+
+      if (startMarker && endMarker) {
+        // Calculate positions relative to container
+        const startY = startMarker.offsetTop - containerTop;
+        const endY = endMarker.offsetTop - containerTop + endMarker.offsetHeight;
+
+        // Set position and height
+        element.style.top = `${startY}px`;
+        element.style.height = `${endY - startY}px`;
+
+        // Fade in the card
+        element.style.opacity = '1';
+      }
+    });
+  }
+
+  // Run positioning on load and resize
+  if (typeof window !== 'undefined') {
+    window.addEventListener('load', positionPeriodCards);
+    window.addEventListener('resize', positionPeriodCards);
+
+    // Also run after a short delay to ensure DOM is fully rendered
+    setTimeout(positionPeriodCards, 100);
+  }
 </script>
