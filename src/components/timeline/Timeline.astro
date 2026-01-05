@@ -105,80 +105,91 @@ const periodLabels = {
   <h2 class="mb-8 text-2xl font-bold text-secondary">Experience & Education</h2>
 
   <!-- Desktop/Mobile Layout -->
-  <div class="relative" id="timeline-container">
+  <div class="relative" id="timeline-container" data-ordering={ordering}>
     <!-- Timeline rail (vertical line) -->
     <div class="absolute top-0 -z-10 border-accent border-l-2 min-h-[100px] h-full" style="left: var(--x-offset);"></div>
 
     <!-- Period cards (absolutely positioned, heights calculated from DOM) -->
     {periods.map(period => {
       const startYear = new Date(period.startDate).getFullYear();
-      const endYear = period.endDate ? new Date(period.endDate).getFullYear() : new Date().getFullYear();
+      const endYear = period.endDate ? new Date(period.endDate).getFullYear() : null;
 
       return (
         <div
-          class="period-card absolute hidden sm:block w-64 opacity-0 transition-opacity duration-300"
+          class="period-card absolute hidden sm:block w-64 opacity-0 transition-all duration-300 hover:z-20 focus-within:z-20"
           data-period-id={period.id}
           data-start-year={startYear}
           data-end-year={endYear}
-          style="right: calc(50% + 3rem);"
+          data-is-current={endYear === null ? 'true' : 'false'}
+          style="right: calc(50% + 3rem); z-index: 10;"
+          tabindex="0"
+          role="article"
+          aria-label={`${period.title} at ${period.organisation}`}
         >
-          <div class="h-full border-2 border-accent/30 hover:border-accent rounded-md p-3 bg-primary/50 backdrop-blur-sm transition-colors relative overflow-hidden">
+          <!-- Card border and background (full height) -->
+          <div class="h-full border-2 border-accent/30 hover:border-accent rounded-md bg-primary/50 backdrop-blur-sm transition-colors relative overflow-hidden">
             <!-- Gradient pointing toward timeline -->
             <div class="absolute inset-y-0 -right-12 w-12 bg-gradient-to-r from-accent/10 to-transparent pointer-events-none"></div>
 
-            <div class="relative z-10">
-              <div class="flex items-start gap-3 mb-2">
-                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary border-2 border-accent flex items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 text-accent"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    set:html={periodIcons[period.type]}
-                    aria-hidden="true"
-                  />
+            <!-- Sticky content wrapper -->
+            <div class="sticky top-0 max-h-full p-3 overflow-auto period-card-content">
+              <div class="relative z-10">
+                <div class="flex items-start gap-3 mb-2">
+                  <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary border-2 border-accent flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5 text-accent"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      set:html={periodIcons[period.type]}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <span class="text-xs font-medium text-accent uppercase tracking-wide block mb-1">
+                      {periodLabels[period.type]}
+                    </span>
+                    <h3 class="font-semibold text-secondary text-sm leading-tight">
+                      {period.title}
+                    </h3>
+                    <p class="text-xs text-secondary/70 mt-0.5">
+                      {period.organisation}
+                    </p>
+                  </div>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <span class="text-xs font-medium text-accent uppercase tracking-wide block mb-1">
-                    {periodLabels[period.type]}
-                  </span>
-                  <h3 class="font-semibold text-secondary text-sm leading-tight">
-                    {period.title}
-                  </h3>
-                  <p class="text-xs text-secondary/70 mt-0.5">
-                    {period.organisation}
+
+                <div class="text-xs text-secondary/60 mb-2">
+                  {new Date(period.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                  {' - '}
+                  {period.endDate
+                    ? new Date(period.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                    : 'Present'
+                  }
+                </div>
+
+                <!-- Scrollable blurb section -->
+                <div class="period-blurb max-h-32 overflow-y-auto mb-2">
+                  <p class="text-xs text-secondary/80 leading-relaxed">
+                    {period.blurb}
                   </p>
                 </div>
+
+                {period.tags && period.tags.length > 0 && (
+                  <div class="flex flex-wrap gap-1">
+                    {period.tags.slice(0, 3).map(tag => (
+                      <span class="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
+                        {tag}
+                      </span>
+                    ))}
+                    {period.tags.length > 3 && (
+                      <span class="text-xs px-1.5 py-0.5 text-secondary/60">
+                        +{period.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-
-              <div class="text-xs text-secondary/60 mb-2">
-                {new Date(period.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                {' - '}
-                {period.endDate
-                  ? new Date(period.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                  : 'Present'
-                }
-              </div>
-
-              <p class="text-xs text-secondary/80 leading-relaxed mb-2">
-                {period.blurb}
-              </p>
-
-              {period.tags && period.tags.length > 0 && (
-                <div class="flex flex-wrap gap-1">
-                  {period.tags.slice(0, 3).map(tag => (
-                    <span class="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
-                      {tag}
-                    </span>
-                  ))}
-                  {period.tags.length > 3 && (
-                    <span class="text-xs px-1.5 py-0.5 text-secondary/60">
-                      +{period.tags.length - 3}
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -316,6 +327,37 @@ const periodLabels = {
       display: none;
     }
   }
+
+  /* Custom scrollbar for period blurb */
+  .period-blurb::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .period-blurb::-webkit-scrollbar-track {
+    background: rgb(251 146 60 / 0.1);
+    border-radius: 2px;
+  }
+
+  .period-blurb::-webkit-scrollbar-thumb {
+    background: rgb(251 146 60 / 0.3);
+    border-radius: 2px;
+  }
+
+  .period-blurb::-webkit-scrollbar-thumb:hover {
+    background: rgb(251 146 60 / 0.5);
+  }
+
+  /* Firefox scrollbar */
+  .period-blurb {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(251 146 60 / 0.3) rgb(251 146 60 / 0.1);
+  }
+
+  /* Focus outline for period cards */
+  .period-card:focus {
+    outline: 2px solid rgb(251 146 60 / 0.5);
+    outline-offset: 2px;
+  }
 </style>
 
 <script>
@@ -400,17 +442,36 @@ const periodLabels = {
     if (!container) return;
 
     const containerTop = container.offsetTop;
+    const ordering = container.dataset.ordering || 'reverse';
+    const allYearMarkers = Array.from(document.querySelectorAll('.year-marker')) as HTMLElement[];
 
     document.querySelectorAll('.period-card').forEach(card => {
       const element = card as HTMLElement;
       const startYear = element.dataset.startYear;
       const endYear = element.dataset.endYear;
+      const isCurrent = element.dataset.isCurrent === 'true';
 
-      if (!startYear || !endYear) return;
+      if (!startYear) return;
 
-      // Find year markers for start and end years
+      // Find year marker for start year
       const startMarker = document.querySelector(`.year-marker[data-year="${startYear}"]`) as HTMLElement;
-      const endMarker = document.querySelector(`.year-marker[data-year="${endYear}"]`) as HTMLElement;
+      if (!startMarker) return;
+
+      let endMarker: HTMLElement | null = null;
+
+      // Handle null end date (current/ongoing period)
+      if (isCurrent || endYear === 'null' || !endYear) {
+        // If ordering is 'reverse' (newest first), extend to top of timeline (first marker)
+        // If ordering is 'chronological' (oldest first), extend to bottom of timeline (last marker)
+        if (ordering === 'reverse') {
+          endMarker = allYearMarkers[0]; // First marker (most recent year)
+        } else {
+          endMarker = allYearMarkers[allYearMarkers.length - 1]; // Last marker (most recent year)
+        }
+      } else {
+        // Find year marker for end year
+        endMarker = document.querySelector(`.year-marker[data-year="${endYear}"]`) as HTMLElement;
+      }
 
       if (startMarker && endMarker) {
         // Calculate positions relative to container
