@@ -8,12 +8,12 @@ export const eventIcons: Record<string, string> = {
 };
 
 export const eventLabels: Record<string, string> = {
-  talk: 'Talk',
-  conference: 'Conference',
-  publication: 'Publication',
-  award: 'Award',
-  milestone: 'Milestone',
-  other: 'Event',
+  talk: "Talk",
+  conference: "Conference",
+  publication: "Publication",
+  award: "Award",
+  milestone: "Milestone",
+  other: "Event",
 };
 
 export const periodIcons: Record<string, string> = {
@@ -25,9 +25,9 @@ export const periodIcons: Record<string, string> = {
 };
 
 export const periodLabels: Record<string, string> = {
-  work: 'Employment',
-  education: 'Education',
-  volunteer: 'Volunteer',
-  project: 'Project',
-  other: 'Other',
+  work: "Employment",
+  education: "Education",
+  volunteer: "Volunteer",
+  project: "Project",
+  other: "Other",
 };
