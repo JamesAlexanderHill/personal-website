@@ -12,21 +12,13 @@ const endDate = period.endDate ? new Date(period.endDate) : new Date();
 ---
 
 <div
-  class="period-card hover:z-20 absolute hidden sm:block w-64 opacity-0 transition-opacity duration-300"
+  class="period-card hover:z-20 absolute hidden sm:block max-w-md opacity-0 transition-opacity duration-300 after:content-[''] after:absolute after:inset-y-0 after:-right-12 after:w-12 after:bg-gradient-to-r after:from-accent/10 after:to-transparent after:pointer-events-none"
   data-period-id={period.id}
   data-start={startDate.getTime()}
   data-end={endDate.getTime()}
   style="right: calc(50% + 3rem);"
 >
-  <div
-    class="h-full border-2 border-accent/30 hover:border-accent rounded-md p-3 bg-primary/50 backdrop-blur-sm transition-colors relative overflow-hidden"
-  >
-    <!-- Gradient pointing toward timeline -->
-    <div
-      class="absolute inset-y-0 -right-12 w-12 bg-gradient-to-r from-accent/10 to-transparent pointer-events-none"
-    >
-    </div>
-
+  <div class="h-full border-2 border-accent/30 hover:border-accent rounded-md p-3 bg-primary/50 backdrop-blur-sm transition-colors relative overflow-hidden">
     <div class="relative z-10">
       <div class="flex items-start gap-3 mb-2">
         <div
