@@ -1,5 +1,6 @@
 ---
 import type { Period } from "./types";
+import { periodIcons, periodLabels } from "./icons";
 
 interface Props {
   period: Period;
@@ -31,9 +32,51 @@ const endDate = period.endDate ? new Date(period.endDate) : new Date();
         hover:z-20"
       >
         <div class="sticky top-15 max-h-full overflow-hidden overflow-y-auto">
-          <main>
-            <!-- sticky/scrollable content goes here -->
-            content
+          <main class="p-3">
+            <div class="flex items-start gap-3 mb-2">
+              <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary border-2 border-accent flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" set:html={periodIcons[period.type]} aria-hidden="true" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-xs font-medium text-accent uppercase tracking-wide block mb-1">
+                  {periodLabels[period.type]}
+                </span>
+                <h3 class="font-semibold text-secondary text-sm leading-tight">{period.title}</h3>
+                <p class="text-xs text-secondary/70 mt-0.5">
+                  {period.organisation}
+                  {period.location && <span> • {period.location}</span>}
+                </p>
+              </div>
+            </div>
+            <div class="text-xs text-secondary/60 mb-2">
+              {new Date(period.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+              {" - "}
+              {period.endDate ? new Date(period.endDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Present"}
+            </div>
+            <p class="text-xs text-secondary/80 leading-relaxed mb-2">{period.blurb}</p>
+            {period.links && period.links.length > 0 && (
+              <div class="flex flex-wrap gap-2 mb-2">
+                {period.links.map((link) => (
+                  <a href={link.url} class="text-xs text-accent hover:text-accent/80 underline" target="_blank" rel="noopener noreferrer">
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
+            {period.tags && period.tags.length > 0 && (
+              <div class="flex flex-wrap gap-1">
+                {period.tags.slice(0, 3).map((tag) => (
+                  <span class="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
+                    {tag}
+                  </span>
+                ))}
+                {period.tags.length > 3 && (
+                  <span class="text-xs px-1.5 py-0.5 text-secondary/60">
+                    +{period.tags.length - 3}
+                  </span>
+                )}
+              </div>
+            )}
           </main>
         </div>
       </div>
