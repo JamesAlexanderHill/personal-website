@@ -35,11 +35,24 @@ const years = getYearList(events, periods, ordering);
     >
     </div>
 
-    <!-- Period cards (absolutely positioned, heights calculated from DOM) -->
-    {periods.map((period) => <TimelinePeriod period={period} />)}
-
     <!-- Gradient fade at top -->
     <div class="h-4 bg-gradient-to-t from-transparent to-primary"></div>
+
+    <!-- Period cards (absolutely positioned, heights calculated from DOM) -->
+    {
+      periods
+        .sort((periodA, periodB) => {
+          const durationA =
+            new Date(periodA.endDate ?? Date.now()).getTime() -
+            new Date(periodA.startDate).getTime();
+          const durationB =
+            new Date(periodB.endDate ?? Date.now()).getTime() -
+            new Date(periodB.startDate).getTime();
+
+          return durationB - durationA;
+        })
+        .map((period) => <TimelinePeriod period={period} />)
+    }
 
     <!-- Events and year markers -->
     {

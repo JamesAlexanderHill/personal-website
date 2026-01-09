@@ -9,7 +9,10 @@ const calculateEventMarkerStart = (marker: HTMLElement) => {
 const findMarkerRange = (
   markerData: Array<{ timestampMs: number; pixelPos: number }>,
   dateMs: number
-): { prevMarker: typeof markerData[0]; nextMarker: typeof markerData[0] } | null => {
+): {
+  prevMarker: (typeof markerData)[0];
+  nextMarker: (typeof markerData)[0];
+} | null => {
   // Markers are in reverse chronological order (newest first)
   for (let i = 0; i < markerData.length - 1; i++) {
     const current = markerData[i];
@@ -23,12 +26,18 @@ const findMarkerRange = (
 
   // If date is newer than newest marker, use first two markers
   if (dateMs > markerData[0].timestampMs) {
-    return { prevMarker: markerData[0], nextMarker: markerData[1] || markerData[0] };
+    return {
+      prevMarker: { timestampMs: dateMs, pixelPos: 0 },
+      nextMarker: markerData[0],
+    };
   }
 
   // If date is older than oldest marker, use last two markers
   const len = markerData.length;
-  return { prevMarker: markerData[len - 2] || markerData[len - 1], nextMarker: markerData[len - 1] };
+  return {
+    prevMarker: markerData[len - 2] || markerData[len - 1],
+    nextMarker: markerData[len - 1],
+  };
 };
 
 export function positionPeriodCards() {
@@ -72,7 +81,8 @@ export function positionPeriodCards() {
       startRange.prevMarker.timestampMs === startRange.nextMarker.timestampMs
         ? 0
         : (startDateMs - startRange.nextMarker.timestampMs) /
-          (startRange.prevMarker.timestampMs - startRange.nextMarker.timestampMs);
+          (startRange.prevMarker.timestampMs -
+            startRange.nextMarker.timestampMs);
 
     const endRatio =
       endRange.prevMarker.timestampMs === endRange.nextMarker.timestampMs
@@ -83,7 +93,8 @@ export function positionPeriodCards() {
     // Interpolate pixel positions
     const startPx =
       startRange.nextMarker.pixelPos +
-      (startRange.prevMarker.pixelPos - startRange.nextMarker.pixelPos) * startRatio;
+      (startRange.prevMarker.pixelPos - startRange.nextMarker.pixelPos) *
+        startRatio;
 
     const endPx =
       endRange.nextMarker.pixelPos +
@@ -95,11 +106,7 @@ export function positionPeriodCards() {
   });
 }
 
-// Run positioning on load and resize
-if (typeof window !== "undefined") {
-  window.addEventListener("load", positionPeriodCards);
+document.addEventListener("astro:page-load", () => {
   window.addEventListener("resize", positionPeriodCards);
-
-  // Also run after a short delay to ensure DOM is fully rendered
   setTimeout(positionPeriodCards, 100);
-}
+});
