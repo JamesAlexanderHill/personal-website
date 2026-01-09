@@ -1,6 +1,6 @@
 ---
 import type { Event } from "./types";
-import { eventIcons, eventLabels } from "./icons";
+import { eventIcons } from "./icons";
 
 interface Props {
   event: Event;
@@ -10,75 +10,35 @@ const { event } = Astro.props;
 const date = new Date(event.date);
 ---
 
-<div
-  class="timeline-marker event-marker flex gap-x-2 my-2 -translate-x-8 group"
+<article
+  class="timeline-marker event-marker relative
+  min-h-[4rem] ml-(--x-offset) mr-10 py-2"
   data-date-ms={date.getTime()}
-  style="margin-left: var(--x-offset);"
 >
-  <!-- Icon/dot (clickable on mobile) -->
-  <div class="w-16 flex-shrink-0">
-    <button
-      class="mobile-event-icon sm:pointer-events-none flex-shrink-0 h-8 w-8 rounded-full bg-primary border-2 translate-x-[1px] border-accent flex items-center justify-center mx-auto transition-transform hover:scale-110 sm:hover:scale-100"
-      data-event-id={event.id}
-      aria-label={`View ${event.title}`}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-5 w-5 text-accent"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        set:html={eventIcons[event.type]}
-        aria-hidden="true"
-      />
-    </button>
+  <button
+    class="peer absolute left-0 -translate-x-1/2 p-2
+    border-2 border-accent rounded-full bg-primary text-accent
+    sm:pointer-events-none cursor-pointer sm:cursor-auto"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      set:html={eventIcons[event.type]}
+      aria-hidden="true"
+    />
+  </button>
+  <div
+    class="peer ml-10 hidden sm:block
+    border-2 border-accent/30 hover:border-accent peer-hover:border-accent
+    rounded-md bg-primary/50 backdrop-blur-sm transition-colors"
+  >
+    <div class="w-full max-w-md">content</div>
   </div>
-
-  <!-- Event content (desktop only) -->
-  <div class="grow max-w-md mr-4 hidden sm:block" data-event-content={event.id}>
-    <div
-      class="border-2 border-accent/30 group-hover:border-accent p-2 rounded-md transition-colors"
-    >
-      <div class="flex items-start gap-3">
-        <div class="flex-1 min-w-0">
-          <div class="flex items-start justify-between gap-2 mb-1">
-            <span
-              class="text-xs font-medium text-accent uppercase tracking-wide"
-            >
-              {eventLabels[event.type]}
-            </span>
-            <time
-              datetime={event.date}
-              class="text-xs text-secondary/60 whitespace-nowrap"
-            >
-              {
-                new Date(event.date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })
-              }
-            </time>
-          </div>
-          <h3 class="font-semibold text-secondary mb-1">
-            {event.title}
-          </h3>
-          <p class="text-sm text-secondary/80 leading-relaxed">
-            {event.blurb}
-          </p>
-          {
-            event.tags && event.tags.length > 0 && (
-              <div class="flex flex-wrap gap-2 mt-3">
-                {event.tags.map((tag) => (
-                  <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )
-          }
-        </div>
-      </div>
-    </div>
+  <div
+    class="hidden sm:block -z-5 border-t-2 border-accent/20 w-10 absolute top-7 peer-hover:border-accent"
+  >
   </div>
-</div>
+</article>

@@ -20,7 +20,7 @@ export function positionPeriodCards() {
 
   const containerBottom = container.clientHeight;
   const yearMarkers = container.querySelectorAll(".timeline-marker");
-  const markerPxRanges = {};
+  const markerPxRanges: Record<string, [number, number]> = {};
   for (let i = 0; i < yearMarkers.length; i++) {
     const currentMarker = yearMarkers[i] as HTMLElement;
     const prevMarker = yearMarkers[i - 1] as HTMLElement | undefined;
@@ -33,9 +33,10 @@ export function positionPeriodCards() {
         : calculateEventMarkerStart(currentMarker);
 
       Object.assign(markerPxRanges, {
-        [currentMarker.dataset.dateMs]: [0, start],
+        [String(currentMarker.dataset.dateMs)]: [0, start],
       });
     } else {
+      if (!prevMarker) return;
       const isPrevYearMarker = prevMarker.classList.contains("year-marker");
       const start = isCurrentYearMarker
         ? calculateYearMarkerStart(currentMarker)
@@ -44,7 +45,7 @@ export function positionPeriodCards() {
         ? calculateYearMarkerStart(prevMarker)
         : calculateEventMarkerStart(prevMarker);
       Object.assign(markerPxRanges, {
-        [currentMarker.dataset.dateMs]: [end, start],
+        [String(currentMarker.dataset.dateMs)]: [end, start],
       });
     }
   }
@@ -83,38 +84,16 @@ export function positionPeriodCards() {
 
     const markerKeys = Object.keys(markerPxRanges).map((x) => Number(x));
 
-    const startYear = startDate.getFullYear();
     const startRatio = (startDate.getMonth() + 1) / 12;
     const startRangeKey = convertDateToRangeKey(markerKeys, startDate);
     const startRange = markerPxRanges[startRangeKey];
     const startPx =
       startRange[0] + (startRange[1] - startRange[0]) * startRatio;
 
-    const endYear = endDate.getFullYear();
     const endRatio = (endDate.getMonth() + 1) / 12;
     const endRangeKey = convertDateToRangeKey(markerKeys, endDate);
     const endRange = markerPxRanges[endRangeKey];
     const endPx = endRange[0] + (endRange[1] - endRange[0]) * endRatio;
-
-    /**
-     * TODO
-     * - ratio seems to not match where it happens on the timeline.
-     * - add gradient from timeline to period cards
-     * - handle mobile view positioning
-     *
-     * - z-index needs to be added based on height of period card?
-     */
-
-    console.log("===", {
-      start: startDate.toDateString(),
-      end: endDate.toDateString(),
-      startRangeKey: new Date(Number(startRangeKey)).toDateString(),
-      endRangeKey: new Date(Number(endRangeKey)).toDateString(),
-      startRange,
-      endRange,
-      startPx,
-      endPx,
-    });
 
     element.style.top = `${endPx}px`;
     element.style.height = `${startPx - endPx}px`;
