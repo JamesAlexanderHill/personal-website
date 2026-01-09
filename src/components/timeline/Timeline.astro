@@ -1,17 +1,17 @@
 ---
-import timelineData from './timeline.json';
-import type { Period, Event, TimelineOrdering } from './types';
-import { getYearList, filterEventsByYear } from './utils';
-import TimelineEvent from './TimelineEvent.astro';
-import TimelinePeriod from './TimelinePeriod.astro';
-import TimelineYearMarker from './TimelineYearMarker.astro';
-import EventModal from './EventModal.astro';
+import timelineData from "./timeline.json";
+import type { Period, Event, TimelineOrdering } from "./types";
+import { getYearList, filterEventsByYear } from "./utils";
+import TimelineEvent from "./TimelineEvent.astro";
+import TimelinePeriod from "./TimelinePeriod.astro";
+import TimelineYearMarker from "./TimelineYearMarker.astro";
+import EventModal from "./EventModal.astro";
 
 interface Props {
   ordering?: TimelineOrdering;
 }
 
-const { ordering = 'reverse' } = Astro.props;
+const { ordering = "reverse" } = Astro.props;
 
 const periods: Period[] = timelineData.periods;
 const events: Event[] = timelineData.events;
@@ -19,36 +19,46 @@ const events: Event[] = timelineData.events;
 const years = getYearList(events, periods, ordering);
 ---
 
-<section id="timeline" class="scroll-mt-20 py-12 relative" aria-label="Professional timeline">
+<section
+  id="timeline"
+  class="scroll-mt-20 py-12 relative"
+  aria-label="Professional timeline"
+>
   <h2 class="mb-8 text-2xl font-bold text-secondary">Experience & Education</h2>
 
   <!-- Desktop/Mobile Layout -->
   <div class="relative" id="timeline-container" data-ordering={ordering}>
     <!-- Timeline rail (vertical line) -->
-    <div class="absolute top-0 -z-10 border-accent border-l-2 min-h-[100px] h-full" style="left: var(--x-offset);"></div>
+    <div
+      class="absolute top-0 -z-10 border-accent border-l-2 min-h-[100px] h-full"
+      style="left: var(--x-offset);"
+    >
+    </div>
 
     <!-- Period cards (absolutely positioned, heights calculated from DOM) -->
-    {periods.map(period => <TimelinePeriod period={period} />)}
+    {periods.map((period) => <TimelinePeriod period={period} />)}
 
     <!-- Gradient fade at top -->
     <div class="h-4 bg-gradient-to-t from-transparent to-primary"></div>
 
     <!-- Events and year markers -->
-    {years.map(year => {
-      const yearEvents = filterEventsByYear(events, year);
+    {
+      years.map((year) => {
+        const yearEvents = filterEventsByYear(events, year);
 
-      return (
-        <>
-          {yearEvents.length > 0 ? (
-            yearEvents.map(event => <TimelineEvent event={event} />)
-          ) : (
-            <div class="h-2"></div>
-          )}
+        return (
+          <>
+            {yearEvents.length > 0 ? (
+              yearEvents.map((event) => <TimelineEvent event={event} />)
+            ) : (
+              <div class="h-2" />
+            )}
 
-          <TimelineYearMarker year={year} />
-        </>
-      );
-    })}
+            <TimelineYearMarker date={new Date(year, 0, 1)} />
+          </>
+        );
+      })
+    }
 
     <!-- Gradient fade at bottom -->
     <div class="h-4 bg-gradient-to-b from-transparent to-primary"></div>
@@ -90,5 +100,5 @@ const years = getYearList(events, periods, ordering);
 </style>
 
 <script>
-  import { positionPeriodCards } from './positionPeriods';
+  import { positionPeriodCards } from "./positionPeriods";
 </script>

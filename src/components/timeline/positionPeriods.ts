@@ -1,41 +1,76 @@
 // Position period cards based on DOM year markers
+const calculateYearMarkerStart = (marker: HTMLElement) =>
+  marker.offsetTop + marker.clientHeight;
+const calculateEventMarkerStart = (marker: HTMLElement) => {
+  return marker.offsetTop + 14; // half w-8 = 2rem
+};
+
+const convertDateToRangeKey = (range: number[], date: Date) => {
+  const dateMs = date.getTime() + 1;
+  const sortedRange = [...range, dateMs].sort((a: number, b: number) => a - b);
+  const index = sortedRange.findIndex((num) => num === dateMs);
+
+  // insert ms, sort, find index, -1
+  return String(sortedRange[Math.max(index - 1, 0)]);
+};
+
 export function positionPeriodCards() {
   const container = document.getElementById("timeline-container");
   if (!container) return;
 
-  const containerTop = container.offsetTop;
   const containerBottom = container.clientHeight;
-  const yearMarkers = container.querySelectorAll(".year-marker");
-  const yearToYPx = {
-    present: 0,
-    ...Array.from(yearMarkers).reduce(
-      (acc, element) =>
-        element instanceof HTMLElement
-          ? {
-              ...acc,
-              [element.innerText]: element.offsetTop + element.clientHeight,
-            }
-          : acc,
-      {}
-    ),
-  };
-  const yearPxRanges = {};
+  const yearMarkers = container.querySelectorAll(".timeline-marker");
+  const markerPxRanges = {};
   for (let i = 0; i < yearMarkers.length; i++) {
     const currentMarker = yearMarkers[i] as HTMLElement;
-    const nextMarker = yearMarkers[i + 1] as HTMLElement;
+    const prevMarker = yearMarkers[i - 1] as HTMLElement | undefined;
 
-    const startPx = currentMarker
-      ? currentMarker.offsetTop + currentMarker.clientHeight
-      : 0;
-    const endPx = nextMarker
-      ? nextMarker.offsetTop + nextMarker.clientHeight
-      : containerBottom;
-    Object.assign(yearPxRanges, {
-      [currentMarker.innerText]: [startPx, endPx],
-    });
+    const isCurrentYearMarker = currentMarker.classList.contains("year-marker");
+
+    if (i === 0) {
+      const start = isCurrentYearMarker
+        ? calculateYearMarkerStart(currentMarker)
+        : calculateEventMarkerStart(currentMarker);
+
+      Object.assign(markerPxRanges, {
+        [currentMarker.dataset.dateMs]: [0, start],
+      });
+    } else {
+      const isPrevYearMarker = prevMarker.classList.contains("year-marker");
+      const start = isCurrentYearMarker
+        ? calculateYearMarkerStart(currentMarker)
+        : calculateEventMarkerStart(currentMarker);
+      const end = isPrevYearMarker
+        ? calculateYearMarkerStart(prevMarker)
+        : calculateEventMarkerStart(prevMarker);
+      Object.assign(markerPxRanges, {
+        [currentMarker.dataset.dateMs]: [end, start],
+      });
+    }
   }
 
-  console.log("=== ranges", yearPxRanges);
+  if (window.added !== true && window.debugRanges === true) {
+    window.added = true;
+    Object.values(markerPxRanges).forEach((range, index) => {
+      const debugLine = document.createElement("div");
+      debugLine.classList.add(
+        "absolute",
+        "-z-10",
+        "border-l-2",
+        "border-blue-500",
+        "translate-x-[-5px]"
+      );
+
+      if (index % 2 === 0) {
+        debugLine.classList.replace("border-blue-500", "border-red-500");
+      }
+
+      debugLine.style.top = `${range[0]}px`;
+      debugLine.style.height = `${range[1] - range[0]}px`;
+
+      container.appendChild(debugLine);
+    });
+  }
 
   Array.from(document.getElementsByClassName("period-card")).forEach((card) => {
     const element = card as HTMLElement;
@@ -46,34 +81,39 @@ export function positionPeriodCards() {
       ? new Date(Number(element.dataset.end))
       : new Date();
 
+    const markerKeys = Object.keys(markerPxRanges).map((x) => Number(x));
+
     const startYear = startDate.getFullYear();
     const startRatio = (startDate.getMonth() + 1) / 12;
-    const [startAPx, startBPx] = yearPxRanges[startYear];
-    const startPx = startAPx - (startBPx - startAPx) * startRatio;
+    const startRangeKey = convertDateToRangeKey(markerKeys, startDate);
+    const startRange = markerPxRanges[startRangeKey];
+    const startPx =
+      startRange[0] + (startRange[1] - startRange[0]) * startRatio;
 
     const endYear = endDate.getFullYear();
     const endRatio = (endDate.getMonth() + 1) / 12;
-    const [endAPx, endBPx] = yearPxRanges[endYear];
-    const endPx = endAPx - (endBPx - endAPx) * endRatio;
+    const endRangeKey = convertDateToRangeKey(markerKeys, endDate);
+    const endRange = markerPxRanges[endRangeKey];
+    const endPx = endRange[0] + (endRange[1] - endRange[0]) * endRatio;
 
     /**
      * TODO
      * - ratio seems to not match where it happens on the timeline.
      * - add gradient from timeline to period cards
      * - handle mobile view positioning
-     * 
+     *
      * - z-index needs to be added based on height of period card?
      */
 
     console.log("===", {
-      startYear,
-      startRatio,
+      start: startDate.toDateString(),
+      end: endDate.toDateString(),
+      startRangeKey: new Date(Number(startRangeKey)).toDateString(),
+      endRangeKey: new Date(Number(endRangeKey)).toDateString(),
+      startRange,
+      endRange,
       startPx,
-      endYear,
-      endRatio,
       endPx,
-      ztop: endPx,
-      zheight: startPx - endPx,
     });
 
     element.style.top = `${endPx}px`;

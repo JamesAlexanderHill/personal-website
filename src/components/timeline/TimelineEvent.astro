@@ -1,15 +1,20 @@
 ---
-import type { Event } from './types';
-import { eventIcons, eventLabels } from './icons';
+import type { Event } from "./types";
+import { eventIcons, eventLabels } from "./icons";
 
 interface Props {
   event: Event;
 }
 
 const { event } = Astro.props;
+const date = new Date(event.date);
 ---
 
-<div class="flex gap-x-2 my-2 -translate-x-8 group" style="margin-left: var(--x-offset);">
+<div
+  class="timeline-marker event-marker flex gap-x-2 my-2 -translate-x-8 group"
+  data-date-ms={date.getTime()}
+  style="margin-left: var(--x-offset);"
+>
   <!-- Icon/dot (clickable on mobile) -->
   <div class="w-16 flex-shrink-0">
     <button
@@ -31,15 +36,28 @@ const { event } = Astro.props;
 
   <!-- Event content (desktop only) -->
   <div class="grow max-w-md mr-4 hidden sm:block" data-event-content={event.id}>
-    <div class="border-2 border-accent/30 group-hover:border-accent p-2 rounded-md transition-colors">
+    <div
+      class="border-2 border-accent/30 group-hover:border-accent p-2 rounded-md transition-colors"
+    >
       <div class="flex items-start gap-3">
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
-            <span class="text-xs font-medium text-accent uppercase tracking-wide">
+            <span
+              class="text-xs font-medium text-accent uppercase tracking-wide"
+            >
               {eventLabels[event.type]}
             </span>
-            <time datetime={event.date} class="text-xs text-secondary/60 whitespace-nowrap">
-              {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            <time
+              datetime={event.date}
+              class="text-xs text-secondary/60 whitespace-nowrap"
+            >
+              {
+                new Date(event.date).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              }
             </time>
           </div>
           <h3 class="font-semibold text-secondary mb-1">
@@ -48,15 +66,17 @@ const { event } = Astro.props;
           <p class="text-sm text-secondary/80 leading-relaxed">
             {event.blurb}
           </p>
-          {event.tags && event.tags.length > 0 && (
-            <div class="flex flex-wrap gap-2 mt-3">
-              {event.tags.map(tag => (
-                <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
+          {
+            event.tags && event.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2 mt-3">
+                {event.tags.map((tag) => (
+                  <span class="text-xs px-2 py-1 rounded bg-accent/10 text-accent border border-accent/20">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )
+          }
         </div>
       </div>
     </div>
