@@ -16,9 +16,11 @@ const date = new Date(event.date);
   data-date-ms={date.getTime()}
 >
   <button
-    class="peer absolute left-0 -translate-x-1/2 p-2
+    class="mobile-event-icon peer absolute left-0 -translate-x-1/2 p-2
     border-2 border-accent rounded-full bg-primary text-accent
     sm:pointer-events-none cursor-pointer sm:cursor-auto"
+    data-event-id={event.id}
+    aria-label={`View ${event.title}`}
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -34,6 +36,7 @@ const date = new Date(event.date);
     class="peer ml-10 hidden sm:block
     border-2 border-accent/30 hover:border-accent peer-hover:border-accent
     rounded-md bg-primary/50 backdrop-blur-sm transition-colors"
+    data-event-content={event.id}
   >
     <div class="w-full max-w-md p-3">
       <div class="flex items-start justify-between gap-2 mb-1">
