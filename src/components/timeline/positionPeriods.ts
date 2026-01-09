@@ -5,95 +5,89 @@ const calculateEventMarkerStart = (marker: HTMLElement) => {
   return marker.offsetTop + 14; // half w-8 = 2rem
 };
 
-const convertDateToRangeKey = (range: number[], date: Date) => {
-  const dateMs = date.getTime() + 1;
-  const sortedRange = [...range, dateMs].sort((a: number, b: number) => a - b);
-  const index = sortedRange.findIndex((num) => num === dateMs);
+// Find which two markers a date falls between
+const findMarkerRange = (
+  markerData: Array<{ timestampMs: number; pixelPos: number }>,
+  dateMs: number
+): { prevMarker: typeof markerData[0]; nextMarker: typeof markerData[0] } | null => {
+  // Markers are in reverse chronological order (newest first)
+  for (let i = 0; i < markerData.length - 1; i++) {
+    const current = markerData[i];
+    const next = markerData[i + 1];
 
-  // insert ms, sort, find index, -1
-  return String(sortedRange[Math.max(index - 1, 0)]);
+    // Check if date falls between current (newer) and next (older) marker
+    if (dateMs <= current.timestampMs && dateMs >= next.timestampMs) {
+      return { prevMarker: current, nextMarker: next };
+    }
+  }
+
+  // If date is newer than newest marker, use first two markers
+  if (dateMs > markerData[0].timestampMs) {
+    return { prevMarker: markerData[0], nextMarker: markerData[1] || markerData[0] };
+  }
+
+  // If date is older than oldest marker, use last two markers
+  const len = markerData.length;
+  return { prevMarker: markerData[len - 2] || markerData[len - 1], nextMarker: markerData[len - 1] };
 };
 
 export function positionPeriodCards() {
   const container = document.getElementById("timeline-container");
   if (!container) return;
 
-  const containerBottom = container.clientHeight;
   const yearMarkers = container.querySelectorAll(".timeline-marker");
-  const markerPxRanges: Record<string, [number, number]> = {};
+
+  // Build array of marker data with timestamps and pixel positions
+  const markerData: Array<{ timestampMs: number; pixelPos: number }> = [];
+
   for (let i = 0; i < yearMarkers.length; i++) {
-    const currentMarker = yearMarkers[i] as HTMLElement;
-    const prevMarker = yearMarkers[i - 1] as HTMLElement | undefined;
+    const marker = yearMarkers[i] as HTMLElement;
+    const isYearMarker = marker.classList.contains("year-marker");
+    const pixelPos = isYearMarker
+      ? calculateYearMarkerStart(marker)
+      : calculateEventMarkerStart(marker);
 
-    const isCurrentYearMarker = currentMarker.classList.contains("year-marker");
-
-    if (i === 0) {
-      const start = isCurrentYearMarker
-        ? calculateYearMarkerStart(currentMarker)
-        : calculateEventMarkerStart(currentMarker);
-
-      Object.assign(markerPxRanges, {
-        [String(currentMarker.dataset.dateMs)]: [0, start],
-      });
-    } else {
-      if (!prevMarker) return;
-      const isPrevYearMarker = prevMarker.classList.contains("year-marker");
-      const start = isCurrentYearMarker
-        ? calculateYearMarkerStart(currentMarker)
-        : calculateEventMarkerStart(currentMarker);
-      const end = isPrevYearMarker
-        ? calculateYearMarkerStart(prevMarker)
-        : calculateEventMarkerStart(prevMarker);
-      Object.assign(markerPxRanges, {
-        [String(currentMarker.dataset.dateMs)]: [end, start],
-      });
-    }
-  }
-
-  if (window.added !== true && window.debugRanges === true) {
-    window.added = true;
-    Object.values(markerPxRanges).forEach((range, index) => {
-      const debugLine = document.createElement("div");
-      debugLine.classList.add(
-        "absolute",
-        "-z-10",
-        "border-l-2",
-        "border-blue-500",
-        "translate-x-[-5px]"
-      );
-
-      if (index % 2 === 0) {
-        debugLine.classList.replace("border-blue-500", "border-red-500");
-      }
-
-      debugLine.style.top = `${range[0]}px`;
-      debugLine.style.height = `${range[1] - range[0]}px`;
-
-      container.appendChild(debugLine);
+    markerData.push({
+      timestampMs: Number(marker.dataset.dateMs),
+      pixelPos: pixelPos,
     });
   }
 
+  // Position each period card
   Array.from(document.getElementsByClassName("period-card")).forEach((card) => {
     const element = card as HTMLElement;
-    const startDate = element.dataset.start
-      ? new Date(Number(element.dataset.start))
-      : new Date();
-    const endDate = element.dataset.end
-      ? new Date(Number(element.dataset.end))
-      : new Date();
+    const startDateMs = Number(element.dataset.start);
+    const endDateMs = Number(element.dataset.end);
 
-    const markerKeys = Object.keys(markerPxRanges).map((x) => Number(x));
+    if (!startDateMs || !endDateMs) return;
 
-    const startRatio = (startDate.getMonth() + 1) / 12;
-    const startRangeKey = convertDateToRangeKey(markerKeys, startDate);
-    const startRange = markerPxRanges[startRangeKey];
+    // Find which markers the start and end dates fall between
+    const startRange = findMarkerRange(markerData, startDateMs);
+    const endRange = findMarkerRange(markerData, endDateMs);
+
+    if (!startRange || !endRange) return;
+
+    // Calculate ratio based on actual timestamps
+    const startRatio =
+      startRange.prevMarker.timestampMs === startRange.nextMarker.timestampMs
+        ? 0
+        : (startDateMs - startRange.nextMarker.timestampMs) /
+          (startRange.prevMarker.timestampMs - startRange.nextMarker.timestampMs);
+
+    const endRatio =
+      endRange.prevMarker.timestampMs === endRange.nextMarker.timestampMs
+        ? 0
+        : (endDateMs - endRange.nextMarker.timestampMs) /
+          (endRange.prevMarker.timestampMs - endRange.nextMarker.timestampMs);
+
+    // Interpolate pixel positions
     const startPx =
-      startRange[0] + (startRange[1] - startRange[0]) * startRatio;
+      startRange.nextMarker.pixelPos +
+      (startRange.prevMarker.pixelPos - startRange.nextMarker.pixelPos) * startRatio;
 
-    const endRatio = (endDate.getMonth() + 1) / 12;
-    const endRangeKey = convertDateToRangeKey(markerKeys, endDate);
-    const endRange = markerPxRanges[endRangeKey];
-    const endPx = endRange[0] + (endRange[1] - endRange[0]) * endRatio;
+    const endPx =
+      endRange.nextMarker.pixelPos +
+      (endRange.prevMarker.pixelPos - endRange.nextMarker.pixelPos) * endRatio;
 
     element.style.top = `${endPx}px`;
     element.style.height = `${startPx - endPx}px`;
