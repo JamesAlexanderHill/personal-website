@@ -1,0 +1,110 @@
+{
+  "periods": [
+    {
+      "id": "foxtel-dazn",
+      "type": "work",
+      "title": "Senior Web Engineer (Video)",
+      "organisation": "Foxtel Dazn",
+      "location": "Sydney, Australia",
+      "startDate": "2025-07-01",
+      "endDate": null,
+      "blurb": "Leading video engineering initiatives and architecting scalable streaming solutions.",
+      "tags": ["video", "streaming", "engineering"],
+      "links": []
+    },
+    {
+      "id": "foxtel-streamotion",
+      "type": "work",
+      "title": "Web Engineer (Video)",
+      "organisation": "Foxtel Streamotion",
+      "location": "Sydney, Australia",
+      "startDate": "2021-01-01",
+      "endDate": "2025-07-01",
+      "blurb": "Built and maintained video streaming applications, improving performance and accessibility.",
+      "tags": ["video", "streaming", "accessibility"],
+      "links": []
+    },
+    {
+      "id": "cyrius",
+      "type": "work",
+      "title": "Web Developer",
+      "organisation": "Cyrius Media Group",
+      "location": "Sydney, Australia",
+      "startDate": "2019-03-01",
+      "endDate": "2021-01-01",
+      "blurb": "Developed responsive websites and web applications for diverse clients.",
+      "tags": ["web development", "frontend"],
+      "links": []
+    },
+    {
+      "id": "macquarie-uni",
+      "type": "education",
+      "title": "Bachelor of Information Technology",
+      "organisation": "Macquarie University",
+      "location": "Sydney, Australia",
+      "startDate": "2017-01-01",
+      "endDate": "2020-12-01",
+      "blurb": "Focused on software engineering, web development, and distributed systems.",
+      "tags": ["education", "software engineering"],
+      "links": []
+    },
+    {
+      "id": "st-josephs",
+      "type": "education",
+      "title": "NSW High School Certificate",
+      "organisation": "St Joseph's College",
+      "location": "Sydney, Australia",
+      "startDate": "2010-01-01",
+      "endDate": "2016-12-01",
+      "blurb": "Completed Software Design and Development.",
+      "tags": ["education", "high school"],
+      "links": []
+    }
+  ],
+  "events": [
+    {
+      "id": "ai-engineering-presentation",
+      "type": "presentation",
+      "title": "Presentation on AI in Engineering",
+      "date": "2025-09-15",
+      "venue": "",
+      "location": "",
+      "blurb": "Presented insights on integrating AI tools into engineering workflows.",
+      "tags": ["AI", "engineering", "presentation"],
+      "links": []
+    },
+    {
+      "id": "web-directions-ai",
+      "type": "conference",
+      "title": "Web Directions Engineering AI",
+      "date": "2025-09-12",
+      "venue": "",
+      "location": "",
+      "blurb": "Attended conference focused on AI in web engineering.",
+      "tags": ["AI", "web engineering", "conference"],
+      "links": []
+    },
+    {
+      "id": "aria-presentation",
+      "type": "presentation",
+      "title": "Presentation on ARIA Spec, accessibility and Lighthouse scores",
+      "date": "2021-11-09",
+      "venue": "",
+      "location": "",
+      "blurb": "Presented on web accessibility standards and performance optimization.",
+      "tags": ["accessibility", "ARIA", "performance"],
+      "links": []
+    },
+    {
+      "id": "web-direction-aaa",
+      "type": "conference",
+      "title": "Web Direction AAA (All about access)",
+      "date": "2021-10-29",
+      "venue": "",
+      "location": "",
+      "blurb": "Attended accessibility-focused conference.",
+      "tags": ["accessibility", "conference"],
+      "links": []
+    }
+  ]
+}
