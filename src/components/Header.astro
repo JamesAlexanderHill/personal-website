@@ -9,7 +9,7 @@ interface Props {
 const { isHomepage = false, currentPath } = Astro.props;
 
 const tabs = [
-  { label: "About me", href: "/#experience-and-education" },
+  { label: "About me", href: "/#timeline" },
   { label: "Dev-notes", href: "/devnotes" },
   { label: "Projects", href: "/projects" },
 ];
@@ -40,7 +40,7 @@ const COMPACT_HEIGHT = 64;
   data-hero-height={HERO_HEIGHT}
   data-compact-height={COMPACT_HEIGHT}
 >
-  <div class="container relative mx-auto h-full max-w-4xl px-4">
+  <div class="container relative mx-auto h-full max-w-4xl px-3 sm:px-4">
     <!-- Title -->
     <a
       href="/"
@@ -56,7 +56,7 @@ const COMPACT_HEIGHT = 64;
       isHomepage && (
         <p
           id="header-subtitle"
-          class="absolute left-1/2 -translate-x-1/2 text-lg md:text-xl"
+          class="absolute left-1/2 -translate-x-1/2 text-base sm:text-lg md:text-xl px-2"
         >
           <RoleAnimator client:load />
         </p>
@@ -69,7 +69,7 @@ const COMPACT_HEIGHT = 64;
       class="absolute left-1/2"
       style="view-transition-name: header-nav"
     >
-      <ul class="flex gap-1 rounded-lg border border-secondary/20 p-1">
+      <ul class="flex gap-0.5 sm:gap-1 rounded-lg border border-secondary/20 p-0.5 sm:p-1">
         {
           tabs.map((tab) => {
             const active = isActive(tab.href, currentPath);
@@ -85,7 +85,7 @@ const COMPACT_HEIGHT = 64;
                 <a
                   href={tab.href}
                   class:list={[
-                    "relative block rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
+                    "relative block rounded-md px-2 py-1.5 sm:px-4 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors",
                     active
                       ? "text-primary"
                       : "text-secondary/60 hover:text-secondary",
@@ -118,8 +118,13 @@ const COMPACT_HEIGHT = 64;
     const SCROLL_DISTANCE = HERO_HEIGHT - COMPACT_HEIGHT;
     const COMPACT_THRESHOLD = 0.85;
 
+    // Check if mobile device
+    const isMobile = () => window.innerWidth < 640; // sm breakpoint
+
     function updateHeader() {
       if (!header || !title || !nav) return;
+
+      const mobile = isMobile();
 
       if (!isHomepage) {
         // Non-homepage: compact state
@@ -127,7 +132,7 @@ const COMPACT_HEIGHT = 64;
         header.style.boxShadow = "0 10px 15px -3px rgba(15, 23, 42, 0.5)";
 
         title.style.top = "50%";
-        title.style.left = "16px";
+        title.style.left = mobile ? "12px" : "16px";
         title.style.transform = "translate(0, -50%)";
         title.querySelector("h1")!.style.fontSize = "1.25rem";
 
@@ -147,27 +152,29 @@ const COMPACT_HEIGHT = 64;
       header.style.boxShadow =
         progress > 0.1 ? "0 10px 15px -3px rgba(15, 23, 42, 0.5)" : "none";
 
-      // Title position and size
-      const titleScale = 1 - progress * 0.65;
-      const titleTop = 35 + progress * 15;
+      // Title position and size (adjusted for mobile)
+      const titleScale = mobile ? 1 - progress * 0.5 : 1 - progress * 0.65;
+      const titleTop = mobile ? 30 + progress * 20 : 35 + progress * 15;
       const titleLeftPercent = 50 - progress * 50;
 
       title.style.top = `${titleTop}%`;
-      title.style.left = `calc(${titleLeftPercent}% + 16px)`;
+      title.style.left = `calc(${titleLeftPercent}% + ${mobile ? '12px' : '16px'})`;
       title.style.transform = `translate(-${titleLeftPercent}%, -50%)`;
-      title.querySelector("h1")!.style.fontSize =
-        `clamp(1.25rem, ${3.5 * titleScale}rem, 3.5rem)`;
 
-      // Subtitle opacity
+      const maxFontSize = mobile ? 2.5 : 3.5;
+      title.querySelector("h1")!.style.fontSize =
+        `clamp(1.25rem, ${maxFontSize * titleScale}rem, ${maxFontSize}rem)`;
+
+      // Subtitle opacity and position (adjusted for mobile)
       if (subtitle) {
         const subtitleOpacity = Math.max(0, 1 - progress * 2.5);
         subtitle.style.opacity = String(subtitleOpacity);
-        subtitle.style.top = "45%";
+        subtitle.style.top = mobile ? "48%" : "45%";
         subtitle.style.visibility = subtitleOpacity > 0 ? "visible" : "hidden";
       }
 
-      // Navigation position
-      const navBottom = 5 + progress * 45;
+      // Navigation position (adjusted for mobile)
+      const navBottom = mobile ? 8 + progress * 42 : 5 + progress * 45;
       nav.style.bottom = `${navBottom}%`;
       nav.style.transform = "translate(-50%, 50%)";
     }
@@ -177,6 +184,13 @@ const COMPACT_HEIGHT = 64;
 
     // Listen for scroll
     window.addEventListener("scroll", updateHeader, { passive: true });
+
+    // Listen for resize/orientation changes (mobile specific)
+    let resizeTimeout: NodeJS.Timeout;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(updateHeader, 100);
+    }, { passive: true });
 
     // Re-run on view transitions
     document.addEventListener("astro:page-load", () => {
