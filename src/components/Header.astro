@@ -22,12 +22,20 @@ function isActive(href: string, current: string): boolean {
 }
 
 const HERO_HEIGHT = 400;
+const HERO_HEIGHT_MOBILE = 240; // Shorter on mobile for vertical stack
 const COMPACT_HEIGHT = 64;
+const COMPACT_HEIGHT_MOBILE = 140; // Taller on mobile to fit vertical stack
 ---
 
-<!-- Spacer -->
+<!-- Spacer - responsive height -->
 <div
   id="header-spacer"
+  class="sm:hidden"
+  style={`height: ${isHomepage ? HERO_HEIGHT_MOBILE : COMPACT_HEIGHT_MOBILE}px`}
+>
+</div>
+<div
+  class="hidden sm:block"
   style={`height: ${isHomepage ? HERO_HEIGHT : COMPACT_HEIGHT}px`}
 >
 </div>
@@ -38,17 +46,19 @@ const COMPACT_HEIGHT = 64;
   class="fixed left-0 right-0 top-0 z-40 bg-primary"
   data-is-homepage={isHomepage}
   data-hero-height={HERO_HEIGHT}
+  data-hero-height-mobile={HERO_HEIGHT_MOBILE}
   data-compact-height={COMPACT_HEIGHT}
+  data-compact-height-mobile={COMPACT_HEIGHT_MOBILE}
 >
-  <div class="container relative mx-auto h-full max-w-4xl px-3 sm:px-4">
+  <div class="container relative mx-auto h-full max-w-4xl px-3 sm:px-4 flex flex-col items-center justify-center gap-3 sm:block">
     <!-- Title -->
     <a
       href="/"
       id="header-title"
-      class="absolute"
+      class="sm:absolute"
       style="view-transition-name: header-title"
     >
-      <h1 class="font-bold text-secondary whitespace-nowrap">James Hill</h1>
+      <h1 class="font-bold text-secondary whitespace-nowrap text-center sm:text-left">James Hill</h1>
     </a>
 
     <!-- Subtitle - only on homepage -->
@@ -56,7 +66,7 @@ const COMPACT_HEIGHT = 64;
       isHomepage && (
         <p
           id="header-subtitle"
-          class="absolute left-1/2 -translate-x-1/2 text-base sm:text-lg md:text-xl px-2"
+          class="sm:absolute sm:left-1/2 sm:-translate-x-1/2 text-base sm:text-lg md:text-xl px-2 text-center"
         >
           <RoleAnimator client:load />
         </p>
@@ -66,7 +76,7 @@ const COMPACT_HEIGHT = 64;
     <!-- Navigation -->
     <nav
       id="header-nav"
-      class="absolute left-1/2"
+      class="sm:absolute sm:left-1/2"
       style="view-transition-name: header-nav"
     >
       <ul class="flex gap-0.5 sm:gap-1 rounded-lg border border-secondary/20 p-0.5 sm:p-1">
@@ -114,8 +124,9 @@ const COMPACT_HEIGHT = 64;
 
     const isHomepage = header.dataset.isHomepage === "true";
     const HERO_HEIGHT = parseInt(header.dataset.heroHeight || "400");
+    const HERO_HEIGHT_MOBILE = parseInt(header.dataset.heroHeightMobile || "240");
     const COMPACT_HEIGHT = parseInt(header.dataset.compactHeight || "64");
-    const SCROLL_DISTANCE = HERO_HEIGHT - COMPACT_HEIGHT;
+    const COMPACT_HEIGHT_MOBILE = parseInt(header.dataset.compactHeightMobile || "140");
     const COMPACT_THRESHOLD = 0.85;
 
     // Check if mobile device
@@ -126,57 +137,96 @@ const COMPACT_HEIGHT = 64;
 
       const mobile = isMobile();
 
+      // Use mobile or desktop heights
+      const heroHeight = mobile ? HERO_HEIGHT_MOBILE : HERO_HEIGHT;
+      const compactHeight = mobile ? COMPACT_HEIGHT_MOBILE : COMPACT_HEIGHT;
+      const scrollDistance = heroHeight - compactHeight;
+
       if (!isHomepage) {
         // Non-homepage: compact state
-        header.style.height = `${COMPACT_HEIGHT}px`;
+        header.style.height = `${compactHeight}px`;
         header.style.boxShadow = "0 10px 15px -3px rgba(15, 23, 42, 0.5)";
 
-        title.style.top = "50%";
-        title.style.left = mobile ? "12px" : "16px";
-        title.style.transform = "translate(0, -50%)";
-        title.querySelector("h1")!.style.fontSize = "1.25rem";
+        // Only apply positioning on desktop (mobile uses flex layout)
+        if (!mobile) {
+          title.style.top = "50%";
+          title.style.left = "16px";
+          title.style.transform = "translate(0, -50%)";
+          title.querySelector("h1")!.style.fontSize = "1.25rem";
 
-        nav.style.bottom = "50%";
-        nav.style.transform = "translate(-50%, 50%)";
+          nav.style.bottom = "50%";
+          nav.style.transform = "translate(-50%, 50%)";
+        } else {
+          // Reset inline styles on mobile to use flex layout
+          title.style.top = "";
+          title.style.left = "";
+          title.style.transform = "";
+          title.querySelector("h1")!.style.fontSize = "";
+
+          nav.style.bottom = "";
+          nav.style.transform = "";
+
+          if (subtitle) {
+            subtitle.style.top = "";
+            subtitle.style.opacity = "";
+            subtitle.style.visibility = "";
+          }
+        }
 
         return;
       }
 
       const scrollY = window.scrollY;
-      const progress = Math.min(Math.max(scrollY / SCROLL_DISTANCE, 0), 1);
+      const progress = Math.min(Math.max(scrollY / scrollDistance, 0), 1);
       const isCompact = progress > COMPACT_THRESHOLD;
 
       // Header height
-      const currentHeight = HERO_HEIGHT - progress * SCROLL_DISTANCE;
+      const currentHeight = heroHeight - progress * scrollDistance;
       header.style.height = `${currentHeight}px`;
       header.style.boxShadow =
         progress > 0.1 ? "0 10px 15px -3px rgba(15, 23, 42, 0.5)" : "none";
 
-      // Title position and size (adjusted for mobile)
-      const titleScale = mobile ? 1 - progress * 0.5 : 1 - progress * 0.65;
-      const titleTop = mobile ? 30 + progress * 20 : 35 + progress * 15;
-      const titleLeftPercent = 50 - progress * 50;
+      // Only apply positioning animations on desktop (mobile uses flex layout)
+      if (!mobile) {
+        // Title position and size
+        const titleScale = 1 - progress * 0.65;
+        const titleTop = 35 + progress * 15;
+        const titleLeftPercent = 50 - progress * 50;
 
-      title.style.top = `${titleTop}%`;
-      title.style.left = `calc(${titleLeftPercent}% + ${mobile ? '12px' : '16px'})`;
-      title.style.transform = `translate(-${titleLeftPercent}%, -50%)`;
+        title.style.top = `${titleTop}%`;
+        title.style.left = `calc(${titleLeftPercent}% + 16px)`;
+        title.style.transform = `translate(-${titleLeftPercent}%, -50%)`;
 
-      const maxFontSize = mobile ? 2.5 : 3.5;
-      title.querySelector("h1")!.style.fontSize =
-        `clamp(1.25rem, ${maxFontSize * titleScale}rem, ${maxFontSize}rem)`;
+        const maxFontSize = 3.5;
+        title.querySelector("h1")!.style.fontSize =
+          `clamp(1.25rem, ${maxFontSize * titleScale}rem, ${maxFontSize}rem)`;
 
-      // Subtitle opacity and position (adjusted for mobile)
-      if (subtitle) {
-        const subtitleOpacity = Math.max(0, 1 - progress * 2.5);
-        subtitle.style.opacity = String(subtitleOpacity);
-        subtitle.style.top = mobile ? "48%" : "45%";
-        subtitle.style.visibility = subtitleOpacity > 0 ? "visible" : "hidden";
+        // Subtitle opacity and position
+        if (subtitle) {
+          const subtitleOpacity = Math.max(0, 1 - progress * 2.5);
+          subtitle.style.opacity = String(subtitleOpacity);
+          subtitle.style.top = "45%";
+          subtitle.style.visibility = subtitleOpacity > 0 ? "visible" : "hidden";
+        }
+
+        // Navigation position
+        const navBottom = 5 + progress * 45;
+        nav.style.bottom = `${navBottom}%`;
+        nav.style.transform = "translate(-50%, 50%)";
+      } else {
+        // On mobile, just adjust font size based on scroll
+        const titleScale = 1 - progress * 0.3;
+        const maxFontSize = 2;
+        title.querySelector("h1")!.style.fontSize =
+          `clamp(1.125rem, ${maxFontSize * titleScale}rem, ${maxFontSize}rem)`;
+
+        // Fade out subtitle on scroll (mobile)
+        if (subtitle) {
+          const subtitleOpacity = Math.max(0, 1 - progress * 3);
+          subtitle.style.opacity = String(subtitleOpacity);
+          subtitle.style.visibility = subtitleOpacity > 0 ? "visible" : "hidden";
+        }
       }
-
-      // Navigation position (adjusted for mobile)
-      const navBottom = mobile ? 8 + progress * 42 : 5 + progress * 45;
-      nav.style.bottom = `${navBottom}%`;
-      nav.style.transform = "translate(-50%, 50%)";
     }
 
     // Initial update
