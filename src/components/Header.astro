@@ -27,7 +27,50 @@ const COMPACT_HEIGHT = 64;
 const COMPACT_HEIGHT_MOBILE = 140; // Taller on mobile to fit vertical stack
 ---
 
-<!-- Spacer - responsive height -->
+<header
+  class="fixed top-0 z-50 py-2 text-center w-full whitespace-nowrap bg-primary"
+>
+  <h1 class="font-bold text-secondary"><a>James Hill</a></h1>
+  {
+    isHomepage && (
+      <p id="header-subtitle" class="px-2 text-center">
+        <RoleAnimator client:load />
+      </p>
+    )
+  }
+  <nav>
+    <ul class="inline-flex gap-0.5 rounded-lg border border-secondary/20 p-0.5">
+      {
+        tabs.map((tab) => {
+          const active = isActive(tab.href, currentPath);
+          return (
+            <li class="relative">
+              {active && (
+                <span
+                  id="active-tab-indicator"
+                  style="view-transition-name: active-tab"
+                  class="absolute inset-0 rounded-md bg-accent"
+                />
+              )}
+              <a
+                href={tab.href}
+                class:list={[
+                  "relative block rounded-md px-2 py-1.5 sm:px-4 sm:py-1.5 text-xs sm:text-sm font-medium transition-colors",
+                  active
+                    ? "text-primary"
+                    : "text-secondary/60 hover:text-secondary",
+                ]}
+              >
+                {tab.label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </nav>
+</header>
+
 <div
   id="header-spacer"
   class="sm:hidden"
@@ -40,7 +83,6 @@ const COMPACT_HEIGHT_MOBILE = 140; // Taller on mobile to fit vertical stack
 >
 </div>
 
-<!-- Fixed header -->
 <header
   id="site-header"
   class="fixed left-0 right-0 top-0 z-40 bg-primary"
@@ -50,18 +92,22 @@ const COMPACT_HEIGHT_MOBILE = 140; // Taller on mobile to fit vertical stack
   data-compact-height={COMPACT_HEIGHT}
   data-compact-height-mobile={COMPACT_HEIGHT_MOBILE}
 >
-  <div class="container relative mx-auto h-full max-w-4xl px-3 sm:px-4 flex flex-col items-center justify-center gap-3 sm:block">
-    <!-- Title -->
+  <div
+    class="container relative mx-auto h-full max-w-4xl px-3 sm:px-4 flex flex-col items-center justify-center gap-3 sm:block"
+  >
     <a
       href="/"
       id="header-title"
       class="sm:absolute"
       style="view-transition-name: header-title"
     >
-      <h1 class="font-bold text-secondary whitespace-nowrap text-center sm:text-left">James Hill</h1>
+      <h1
+        class="font-bold text-secondary whitespace-nowrap text-center sm:text-left"
+      >
+        James Hill
+      </h1>
     </a>
 
-    <!-- Subtitle - only on homepage -->
     {
       isHomepage && (
         <p
@@ -73,13 +119,14 @@ const COMPACT_HEIGHT_MOBILE = 140; // Taller on mobile to fit vertical stack
       )
     }
 
-    <!-- Navigation -->
     <nav
       id="header-nav"
       class="sm:absolute sm:left-1/2"
       style="view-transition-name: header-nav"
     >
-      <ul class="flex gap-0.5 sm:gap-1 rounded-lg border border-secondary/20 p-0.5 sm:p-1">
+      <ul
+        class="flex gap-0.5 sm:gap-1 rounded-lg border border-secondary/20 p-0.5 sm:p-1"
+      >
         {
           tabs.map((tab) => {
             const active = isActive(tab.href, currentPath);
@@ -124,9 +171,13 @@ const COMPACT_HEIGHT_MOBILE = 140; // Taller on mobile to fit vertical stack
 
     const isHomepage = header.dataset.isHomepage === "true";
     const HERO_HEIGHT = parseInt(header.dataset.heroHeight || "400");
-    const HERO_HEIGHT_MOBILE = parseInt(header.dataset.heroHeightMobile || "240");
+    const HERO_HEIGHT_MOBILE = parseInt(
+      header.dataset.heroHeightMobile || "240"
+    );
     const COMPACT_HEIGHT = parseInt(header.dataset.compactHeight || "64");
-    const COMPACT_HEIGHT_MOBILE = parseInt(header.dataset.compactHeightMobile || "140");
+    const COMPACT_HEIGHT_MOBILE = parseInt(
+      header.dataset.compactHeightMobile || "140"
+    );
     const COMPACT_THRESHOLD = 0.85;
 
     // Check if mobile device
@@ -206,7 +257,8 @@ const COMPACT_HEIGHT_MOBILE = 140; // Taller on mobile to fit vertical stack
           const subtitleOpacity = Math.max(0, 1 - progress * 2.5);
           subtitle.style.opacity = String(subtitleOpacity);
           subtitle.style.top = "45%";
-          subtitle.style.visibility = subtitleOpacity > 0 ? "visible" : "hidden";
+          subtitle.style.visibility =
+            subtitleOpacity > 0 ? "visible" : "hidden";
         }
 
         // Navigation position
@@ -224,7 +276,8 @@ const COMPACT_HEIGHT_MOBILE = 140; // Taller on mobile to fit vertical stack
         if (subtitle) {
           const subtitleOpacity = Math.max(0, 1 - progress * 3);
           subtitle.style.opacity = String(subtitleOpacity);
-          subtitle.style.visibility = subtitleOpacity > 0 ? "visible" : "hidden";
+          subtitle.style.visibility =
+            subtitleOpacity > 0 ? "visible" : "hidden";
         }
       }
     }
@@ -237,10 +290,14 @@ const COMPACT_HEIGHT_MOBILE = 140; // Taller on mobile to fit vertical stack
 
     // Listen for resize/orientation changes (mobile specific)
     let resizeTimeout: NodeJS.Timeout;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(updateHeader, 100);
-    }, { passive: true });
+    window.addEventListener(
+      "resize",
+      () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateHeader, 100);
+      },
+      { passive: true }
+    );
 
     // Re-run on view transitions
     document.addEventListener("astro:page-load", () => {

@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 
 const ROLES = [
-  "Solution Architect",
-  "Web Engineer",
-  "Avid Programmer",
-  "Full Stack Developer",
+  "      Solution Architect      ",
+  "          Web Engineer        ",
+  "        Avid Programmer       ",
+  "     Full Stack Developer     ",
 ];
 
 const CHAR_FLIP_DELAY = 50; // ms between each character flip
@@ -34,7 +34,9 @@ function Letter({ char, isFlipping }: LetterProps) {
 
 export default function RoleAnimator() {
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState(ROLES[0].padEnd(FIXED_WIDTH, " "));
+  const [displayedText, setDisplayedText] = useState(
+    ROLES[0].padEnd(FIXED_WIDTH, " ")
+  );
   const [flippingIndices, setFlippingIndices] = useState<Set<number>>(
     new Set()
   );
