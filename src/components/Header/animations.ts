@@ -10,7 +10,7 @@ let mm: gsap.MatchMedia | null = null;
 
 export const init = (isHomepage = false) => {
   const animationStart = 0;
-  const animationEnd = 200;
+  const animationEnd = 147;
 
   tlFadeIn = gsap
     .timeline()
