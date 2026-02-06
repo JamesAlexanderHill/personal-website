@@ -1,0 +1,99 @@
+---
+import RoleAnimator from "./RoleAnimator.tsx";
+
+interface Props {
+  isHomepage?: boolean;
+  currentPath: string;
+}
+
+const { isHomepage = false, currentPath } = Astro.props;
+
+const tabs = [
+  { label: "About me", href: "/#timeline" },
+  { label: "Dev-notes", href: "/devnotes" },
+  { label: "Projects", href: "/projects" },
+];
+
+function isActive(href: string, current: string): boolean {
+  if (href.startsWith("/#")) {
+    return current === "/";
+  }
+  return current.startsWith(href);
+}
+
+---
+<header class=`sticky top-0 left-0 w-full z-50 flex flex-col`>
+<div class="wrapper relative bg-linear-to-t from-transparent to-primary to-40%">
+  <h1 transition:name="header-title" id="title" class="font-bold text-secondary whitespace-nowrap fixed top-0 inline-block text-[1.5rem] my-[0.25rem] mx-[1rem] ml-[50%] -translate-x-1/2 sm:translate-none  sm:ml-[1rem]"><a href="/">James Hill</a></h1>
+  {
+    isHomepage && (
+      <p id="header-subtitle" class="px-2 text-center opacity-0 h-0">
+        <RoleAnimator client:load />
+      </p>
+    )
+  }
+  <nav transition:name="header-nav" class="flex justify-center p-1 mt-[3rem] sm:mt-0">
+    <ul class="inline-flex gap-0.5 rounded-lg border border-secondary/20 p-0.5 bg-primary">
+      {
+        tabs.map((tab) => {
+          const active = isActive(tab.href, currentPath);
+          return (
+            <li class="relative">
+              {active && (
+                <span
+                  transition:name="active-tab"
+                  id="active-tab-indicator"
+                  // style="view-transition-name: active-tab"
+                  class="absolute inset-0 rounded-md bg-accent"
+                />
+              )}
+              <a
+                {tab.href.includes('#') ? 'data-astro-reload': ''}
+                href={tab.href}
+                class:list={[
+                  "relative block rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                  active
+                    ? "text-primary"
+                    : "text-secondary/60 hover:text-secondary",
+                ]}
+              >
+                {tab.label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </nav>
+</div>
+</header>
+
+<div
+  id="header-spacer"
+>
+</div>
+<!-- <header class="invisible sticky top-0 left-0 w-full z-50 flex flex-col">
+  <div class="wrapper relative">
+    <h1 class="fixed top-0 inline-block font-[1.5rem] my-[0.25rem] mx-[1rem]">Title</h1>
+    <p class="opacity-0 h-0 text-center">This is a sub title</p>
+    <nav>
+      <ul class="m-[0.59rem] flex gap-1 justify-center">
+        <li>Item 1</li>
+        <li>Item 1</li>
+        <li>Item 1</li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<div id="header-spacer"></div> -->
+<script>
+  import {init, cleanup} from "./animations.ts";
+
+  document.addEventListener("astro:page-load", () => {
+    init(window.location.pathname === "/")
+  });
+  document.addEventListener("astro:before-swap", () => {
+    cleanup()
+  });
+  
+</script>
