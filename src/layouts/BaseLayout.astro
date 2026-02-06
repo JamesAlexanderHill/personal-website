@@ -1,8 +1,8 @@
 ---
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 import FixedActions from "../components/FixedActions.astro";
-import Header from "../components/Header.astro";
+import Header from "../components/Header/Header.astro";
 
 interface Props {
   title: string;
@@ -31,7 +31,7 @@ const currentPath = Astro.url.pathname;
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <ViewTransitions />
+    <ClientRouter />
     <title>{title}</title>
   </head>
   <body class="min-h-screen font-mono antialiased">

@@ -48,6 +48,41 @@
     align-items: center;
     justify-content: center;
   }
+
+  /* Mobile optimizations for smoother animations */
+  @media (max-width: 640px) {
+    .letter-flip {
+      perspective: 800px;
+    }
+
+    .letter-flip-inner {
+      will-change: transform;
+    }
+
+    .letter-flip-inner.flipping {
+      animation-duration: 0.35s;
+    }
+
+    @keyframes letterFlip {
+      0% {
+        transform: rotateX(0deg);
+      }
+      50% {
+        transform: rotateX(-90deg);
+      }
+      100% {
+        transform: rotateX(0deg);
+      }
+    }
+  }
+
+  /* Improve touch responsiveness */
+  @media (hover: none) and (pointer: coarse) {
+    nav a {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+  }
 }
 
 @layer utilities {

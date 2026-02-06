@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 
 const ROLES = [
-  "Solution Architect",
-  "Web Engineer",
-  "Avid Programmer",
-  "Full Stack Developer",
+  "      Solution Architect      ",
+  "          Web Engineer        ",
+  "        Avid Programmer       ",
+  "     Full Stack Developer     ",
 ];
 
 const CHAR_FLIP_DELAY = 50; // ms between each character flip
 const ROLE_DISPLAY_DURATION = 3000; // ms to display each role
+const FIXED_WIDTH = 30; // Fixed character width to prevent layout shift
 
 interface LetterProps {
   char: string;
@@ -33,7 +34,9 @@ function Letter({ char, isFlipping }: LetterProps) {
 
 export default function RoleAnimator() {
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState(ROLES[0]);
+  const [displayedText, setDisplayedText] = useState(
+    ROLES[0].padEnd(FIXED_WIDTH, " ")
+  );
   const [flippingIndices, setFlippingIndices] = useState<Set<number>>(
     new Set()
   );
@@ -42,21 +45,19 @@ export default function RoleAnimator() {
   useEffect(() => {
     const cycleRole = () => {
       const nextRoleIndex = (currentRoleIndex + 1) % ROLES.length;
-      const currentRole = ROLES[currentRoleIndex];
       const nextRole = ROLES[nextRoleIndex];
-      const maxLength = Math.max(currentRole.length, nextRole.length);
 
-      // Animate each character with staggered delay
-      for (let i = 0; i < maxLength; i++) {
+      // Animate each character with staggered delay (all FIXED_WIDTH characters)
+      for (let i = 0; i < FIXED_WIDTH; i++) {
         setTimeout(() => {
           setFlippingIndices((prev) => new Set(prev).add(i));
 
           // After flip animation, update the character
           setTimeout(() => {
             setDisplayedText((prev) => {
-              const chars = prev.padEnd(maxLength, " ").split("");
+              const chars = prev.split("");
               chars[i] = nextRole[i] || " ";
-              return chars.join("").trimEnd();
+              return chars.join("");
             });
             setFlippingIndices((prev) => {
               const next = new Set(prev);
@@ -70,7 +71,7 @@ export default function RoleAnimator() {
       // Set next role index after all animations complete
       setTimeout(() => {
         setCurrentRoleIndex(nextRoleIndex);
-      }, maxLength * CHAR_FLIP_DELAY + 400);
+      }, FIXED_WIDTH * CHAR_FLIP_DELAY + 400);
     };
 
     timeoutRef.current = setTimeout(cycleRole, ROLE_DISPLAY_DURATION);
