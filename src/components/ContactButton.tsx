@@ -1,7 +1,11 @@
 import { useState } from "react";
 import ContactModal from "./ContactModal";
 
-export default function ContactButton() {
+interface ContactButtonProps {
+  turnstileSiteKey: string;
+}
+
+export default function ContactButton({ turnstileSiteKey }: ContactButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -30,6 +34,7 @@ export default function ContactButton() {
       <ContactModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        turnstileSiteKey={turnstileSiteKey}
       />
     </>
   );

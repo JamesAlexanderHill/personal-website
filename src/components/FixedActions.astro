@@ -1,5 +1,6 @@
 ---
 import ContactButton from "./ContactButton.tsx";
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 ---
 
 <div class="fixed bottom-6 right-6 z-100 flex flex-col gap-3">
@@ -45,5 +46,5 @@ import ContactButton from "./ContactButton.tsx";
     </svg>
   </a>
 
-  <ContactButton client:load />
+  <ContactButton client:load turnstileSiteKey={turnstileSiteKey} />
 </div>
