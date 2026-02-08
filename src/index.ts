@@ -119,16 +119,16 @@ async function verifyTurnstileToken(
   ip: string,
   secret: string
 ): Promise<TurnstileOutcome> {
+  const formData = new FormData();
+  formData.append("secret", secret);
+  formData.append("response", token);
+  formData.append("remoteip", ip);
+
   const result = await fetch(
     "https://challenges.cloudflare.com/turnstile/v0/siteverify",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        secret,
-        response: token,
-        remoteip: ip,
-      }),
+      body: formData,
     }
   );
 
