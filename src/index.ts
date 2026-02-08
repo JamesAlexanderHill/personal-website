@@ -97,16 +97,33 @@ async function handleContactForm(
     });
 
     if (!emailResponse.ok) {
-      console.error("Mailgun error:", await emailResponse.text());
-      throw new Error("Mailgun API error");
+      const errorBody = await emailResponse.text();
+      return Response.json(
+        {
+          success: false,
+          message:
+            "There was an error sending your message. Please try again later or reach out via an alternative method.",
+          debug: {
+            mailgunStatus: emailResponse.status,
+            mailgunError: errorBody,
+            mgDomainDefined: !!env.MAILGUN_DOMAIN,
+            mgApiKeyDefined: !!env.MAILGUN_API_KEY,
+            websiteEmailDefined: !!env.WEBSITE_EMAIL,
+            receiverEmailDefined: !!env.RECEIVER_EMAIL,
+          },
+        },
+        { status: 500 }
+      );
     }
   } catch (error) {
-    console.error("Email sending error:", error);
     return Response.json(
       {
         success: false,
         message:
           "There was an error sending your message. Please try again later or reach out via an alternative method.",
+        debug: {
+          error: error instanceof Error ? error.message : String(error),
+        },
       },
       { status: 500 }
     );
