@@ -63,13 +63,12 @@ async function handleContactForm(
 
   // Only send email if turnstile passed
   if (!turnstileOutcome.success) {
-    console.log({ ...turnstileOutcome });
-
     return Response.json(
       {
         success: false,
         message:
           "Verification failed. If you believe this is an error, please try again.",
+        turnstile: turnstileOutcome,
       },
       { status: 400 }
     );
