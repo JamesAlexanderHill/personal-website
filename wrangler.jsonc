@@ -6,18 +6,13 @@
     "directory": "./dist",
     "binding": "ASSETS"
   },
-  // Non-secret env vars - safe to commit
-  // "vars": {
-  //   "RECEIVER_EMAIL": "your-email@example.com",
-  //   "WEBSITE_EMAIL": "noreply@mg.yourdomain.com",
-  //   "MAILGUN_DOMAIN": "mg.yourdomain.com",
-  //   "GOOGLE_SERVICE_ACCOUNT_EMAIL": "your-sa@your-project.iam.gserviceaccount.com",
-  //   "GOOGLE_SPREADSHEET_ID": "your-spreadsheet-id"
-  // },
-  // Secrets must be set via CLI (persist across deploys):
-  //   npx wrangler secret put TURNSTILE_SECRET_KEY
-  //   npx wrangler secret put MAILGUN_API_KEY
-  //   npx wrangler secret put GOOGLE_PRIVATE_KEY
+  "vars": {
+    "RECEIVER_EMAIL": "info@jamesalexanderhill.com",
+    "WEBSITE_EMAIL": "website@mg.jameshill.xyz",
+    "MAILGUN_DOMAIN": "mg.jameshill.xyz",
+    "GOOGLE_SERVICE_ACCOUNT_EMAIL": "contact-form@personal-website-486812.iam.gserviceaccount.com",
+    "GOOGLE_SPREADSHEET_ID": "1X837GYS9qwYnayfGjzuY0gp4_vW1zDIPzHkgn1OQOXE"
+  },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
