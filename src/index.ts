@@ -39,13 +39,14 @@ async function handleContactForm(
   );
 
   // Always log to Google Sheets, regardless of turnstile result
+  let sheetsDebug: Record<string, unknown> = {};
   try {
     const accessToken = await getGoogleAccessToken(
       env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       env.GOOGLE_PRIVATE_KEY
     );
 
-    await appendToGoogleSheet({
+    const sheetResponse = await appendToGoogleSheet({
       spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
       accessToken,
       values: [
@@ -57,8 +58,26 @@ async function handleContactForm(
         String(turnstileOutcome.score ?? ""),
       ],
     });
+
+    if (!sheetResponse.ok) {
+      const errorBody = await sheetResponse.text();
+      sheetsDebug = {
+        sheetsStatus: sheetResponse.status,
+        sheetsError: errorBody,
+        spreadsheetIdDefined: !!env.GOOGLE_SPREADSHEET_ID,
+        serviceAccountDefined: !!env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        privateKeyDefined: !!env.GOOGLE_PRIVATE_KEY,
+      };
+    } else {
+      sheetsDebug = { sheetsStatus: sheetResponse.status };
+    }
   } catch (error) {
-    console.error("Google Sheets error:", error);
+    sheetsDebug = {
+      sheetsError: error instanceof Error ? error.message : String(error),
+      spreadsheetIdDefined: !!env.GOOGLE_SPREADSHEET_ID,
+      serviceAccountDefined: !!env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      privateKeyDefined: !!env.GOOGLE_PRIVATE_KEY,
+    };
   }
 
   // Only send email if turnstile passed
@@ -133,6 +152,7 @@ async function handleContactForm(
     success: true,
     message:
       "Thanks for reaching out! We will get in contact with you as soon as possible.",
+    debug: { sheets: sheetsDebug },
   });
 }
 
