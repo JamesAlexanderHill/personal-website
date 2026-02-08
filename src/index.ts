@@ -253,6 +253,7 @@ async function getGoogleAccessToken(
   const signatureInput = `${encodedHeader}.${encodedClaimSet}`;
 
   const pemContents = privateKeyPem
+    .replace(/\\n/g, "\n")
     .replace(/-----BEGIN PRIVATE KEY-----/, "")
     .replace(/-----END PRIVATE KEY-----/, "")
     .replace(/\s/g, "");
