@@ -1,7 +1,16 @@
 {
   "name": "personal-website",
+  "main": "src/index.ts",
   "compatibility_date": "2026-01-02",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "RECEIVER_EMAIL": "info@jamesalexanderhill.com",
+    "WEBSITE_EMAIL": "website@mg.jameshill.xyz",
+    "MAILGUN_DOMAIN": "mg.jameshill.xyz",
+    "GOOGLE_SERVICE_ACCOUNT_EMAIL": "contact-form@personal-website-486812.iam.gserviceaccount.com",
+    "GOOGLE_SPREADSHEET_ID": "1X837GYS9qwYnayfGjzuY0gp4_vW1zDIPzHkgn1OQOXE"
   }
 }
