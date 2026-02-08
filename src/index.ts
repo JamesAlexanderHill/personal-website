@@ -307,7 +307,7 @@ async function appendToGoogleSheet({
   accessToken,
   values,
 }: AppendToSheetParams): Promise<Response> {
-  const range = "Sheet1!A:F";
+  const range = "A:F";
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}:append?valueInputOption=USER_ENTERED`;
 
   return await fetch(url, {
