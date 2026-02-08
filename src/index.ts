@@ -63,12 +63,18 @@ async function handleContactForm(
 
   // Only send email if turnstile passed
   if (!turnstileOutcome.success) {
+    const secret = env.TURNSTILE_SECRET_KEY;
     return Response.json(
       {
         success: false,
         message:
           "Verification failed. If you believe this is an error, please try again.",
         turnstile: turnstileOutcome,
+        debug: {
+          secretDefined: secret !== undefined && secret !== null,
+          secretLength: secret?.length ?? 0,
+          secretPrefix: secret?.substring(0, 4) ?? "N/A",
+        },
       },
       { status: 400 }
     );
