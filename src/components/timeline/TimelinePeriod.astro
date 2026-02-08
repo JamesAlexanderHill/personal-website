@@ -1,0 +1,85 @@
+---
+import type { Period } from "./types";
+import { periodIcons, periodLabels } from "./icons";
+
+interface Props {
+  period: Period;
+}
+
+const { period } = Astro.props;
+const startDate = new Date(period.startDate);
+const endDate = period.endDate ? new Date(period.endDate) : new Date();
+---
+
+<article
+  class="period-card absolute w-full
+    opacity-0 transition-opacity duration-300"
+  data-period-id={period.id}
+  data-start={startDate.getTime()}
+  data-end={endDate.getTime()}
+>
+  <!-- left/right margin + border -->
+  <div class="h-full ml-(--x-offset) mr-10
+  sm:ml-10 sm:mr-(--x-offset)">
+    <div
+      class="h-full ml-10 sm:ml-0 sm:mr-10
+      after:content-[''] after:absolute after:inset-y-0 after:left-9 sm:after:left-auto sm:after:right-[calc(var(--x-offset)+0.25rem)] after:w-12 after:bg-gradient-to-r sm:after:bg-gradient-to-l after:from-accent/10 hover:after:from-accent/20 after:to-transparent after:pointer-events-none"
+    >
+      <div
+        class="w-full h-full max-w-md relative
+        border-2 border-accent/30 hover:border-accent
+        rounded-md bg-primary/50 backdrop-blur-sm transition-colors
+        hover:z-20"
+      >
+        <div class="sticky top-15 max-h-full overflow-hidden overflow-y-auto">
+          <main class="p-3">
+            <div class="flex items-start gap-3 mb-2">
+              <div class="flex-shrink-0 h-8 w-8 rounded-full bg-primary border-2 border-accent flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" set:html={periodIcons[period.type]} aria-hidden="true" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-xs font-medium text-accent uppercase tracking-wide block mb-1">
+                  {periodLabels[period.type]}
+                </span>
+                <h3 class="font-semibold text-secondary text-sm leading-tight">{period.title}</h3>
+                <p class="text-xs text-secondary/70 mt-0.5">
+                  {period.organisation}
+                  {period.location && <span> • {period.location}</span>}
+                </p>
+              </div>
+            </div>
+            <div class="text-xs text-secondary/60 mb-2">
+              {new Date(period.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+              {" - "}
+              {period.endDate ? new Date(period.endDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Present"}
+            </div>
+            <p class="text-xs text-secondary/80 leading-relaxed mb-2">{period.blurb}</p>
+            {period.links && period.links.length > 0 && (
+              <div class="flex flex-wrap gap-2 mb-2">
+                {period.links.map((link) => (
+                  <a href={link.url} class="text-xs text-accent hover:text-accent/80 underline" target="_blank" rel="noopener noreferrer">
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
+            {period.tags && period.tags.length > 0 && (
+              <div class="flex flex-wrap gap-1">
+                {period.tags.slice(0, 3).map((tag) => (
+                  <span class="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
+                    {tag}
+                  </span>
+                ))}
+                {period.tags.length > 3 && (
+                  <span class="text-xs px-1.5 py-0.5 text-secondary/60">
+                    +{period.tags.length - 3}
+                  </span>
+                )}
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>

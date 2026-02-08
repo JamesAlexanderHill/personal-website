@@ -1,0 +1,47 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BlogCard from "../../components/BlogCard.astro";
+
+const projects = (await getCollection("projects")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+// Sort featured projects first
+const sortedProjects = [...projects].sort((a, b) => {
+  if (a.data.featured && !b.data.featured) return -1;
+  if (!a.data.featured && b.data.featured) return 1;
+  return 0;
+});
+---
+
+<BaseLayout title="Projects - James Hill">
+  <section>
+    <h1 class="mb-2 text-3xl font-bold text-secondary">Projects</h1>
+    <p class="mb-8 text-secondary/60">
+      A collection of projects I've built and contributed to.
+    </p>
+
+    {
+      sortedProjects.length === 0 ? (
+        <p class="text-center text-secondary/60">
+          No projects yet. Check back soon!
+        </p>
+      ) : (
+        <div class="grid gap-6">
+          {sortedProjects.map((project) => (
+            <BlogCard
+              title={project.data.title}
+              description={project.data.description}
+              pubDate={project.data.pubDate}
+              tags={project.data.tags}
+              href={`/projects/${project.slug}`}
+              repo={project.data.repo}
+              demo={project.data.demo}
+            />
+          ))}
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>
