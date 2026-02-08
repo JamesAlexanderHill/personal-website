@@ -14,7 +14,10 @@ export default {
   },
 } satisfies ExportedHandler<Env>;
 
-async function handleContactForm(request: Request, env: Env): Promise<Response> {
+async function handleContactForm(
+  request: Request,
+  env: Env
+): Promise<Response> {
   let data: ContactFormData;
 
   try {
@@ -60,11 +63,16 @@ async function handleContactForm(request: Request, env: Env): Promise<Response> 
 
   // Only send email if turnstile passed
   if (!turnstileOutcome.success) {
-    return Response.json({
-      success: false,
-      message:
-        "Verification failed. If you believe this is an error, please try again.",
-    }, { status: 400 });
+    console.log({ ...turnstileOutcome });
+
+    return Response.json(
+      {
+        success: false,
+        message:
+          "Verification failed. If you believe this is an error, please try again.",
+      },
+      { status: 400 }
+    );
   }
 
   try {
