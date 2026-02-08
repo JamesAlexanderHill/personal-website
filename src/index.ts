@@ -24,14 +24,13 @@ async function handleContactForm(
     data = (await request.json()) as ContactFormData;
   } catch {
     return Response.json(
-      { success: false, message: "Invalid request body" },
+      { success: false, message: "Invalid request body." },
       { status: 400 }
     );
   }
 
   const ip = request.headers.get("CF-Connecting-IP") || "";
 
-  // Always verify turnstile to get the score
   const turnstileOutcome = await verifyTurnstileToken(
     data.token,
     ip,
@@ -39,14 +38,13 @@ async function handleContactForm(
   );
 
   // Always log to Google Sheets, regardless of turnstile result
-  let sheetsDebug: Record<string, unknown> = {};
   try {
     const accessToken = await getGoogleAccessToken(
       env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       env.GOOGLE_PRIVATE_KEY
     );
 
-    const sheetResponse = await appendToGoogleSheet({
+    await appendToGoogleSheet({
       spreadsheetId: env.GOOGLE_SPREADSHEET_ID,
       accessToken,
       values: [
@@ -58,42 +56,17 @@ async function handleContactForm(
         String(turnstileOutcome.score ?? ""),
       ],
     });
-
-    if (!sheetResponse.ok) {
-      const errorBody = await sheetResponse.text();
-      sheetsDebug = {
-        sheetsStatus: sheetResponse.status,
-        sheetsError: errorBody,
-        spreadsheetIdDefined: !!env.GOOGLE_SPREADSHEET_ID,
-        serviceAccountDefined: !!env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        privateKeyDefined: !!env.GOOGLE_PRIVATE_KEY,
-      };
-    } else {
-      sheetsDebug = { sheetsStatus: sheetResponse.status };
-    }
   } catch (error) {
-    sheetsDebug = {
-      sheetsError: error instanceof Error ? error.message : String(error),
-      spreadsheetIdDefined: !!env.GOOGLE_SPREADSHEET_ID,
-      serviceAccountDefined: !!env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      privateKeyDefined: !!env.GOOGLE_PRIVATE_KEY,
-    };
+    console.error("Google Sheets error:", error);
   }
 
   // Only send email if turnstile passed
   if (!turnstileOutcome.success) {
-    const secret = env.TURNSTILE_SECRET_KEY;
     return Response.json(
       {
         success: false,
         message:
           "Verification failed. If you believe this is an error, please try again.",
-        turnstile: turnstileOutcome,
-        debug: {
-          secretDefined: secret !== undefined && secret !== null,
-          secretLength: secret?.length ?? 0,
-          secretPrefix: secret?.substring(0, 4) ?? "N/A",
-        },
       },
       { status: 400 }
     );
@@ -104,45 +77,27 @@ async function handleContactForm(
       from: env.WEBSITE_EMAIL,
       to: env.RECEIVER_EMAIL,
       replyTo: data.email,
-      subject: `[Website enquiry] - ${data.name}`,
-      text: `You have a new website enquiry from ${data.name} (${data.email}): message: ${data.message}`,
-      html: `<p>You have a new website enquiry from ${data.name}.</p>
-        <p>Please find the details below:</p>
-        <p>Name: ${data.name}</p>
-        <p>Email: ${data.email}</p>
-        <p>Message: ${data.message}</p>`,
+      subject: `[jamesalexanderhill.com] - ${data.name}`,
+      text: `New contact form submission from ${data.name} (${data.email}): ${data.message}`,
+      html: `<p>New contact form submission from ${data.name}.</p>
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Message:</strong> ${data.message}</p>`,
       mgDomain: env.MAILGUN_DOMAIN,
       mgApiKey: env.MAILGUN_API_KEY,
     });
 
     if (!emailResponse.ok) {
-      const errorBody = await emailResponse.text();
-      return Response.json(
-        {
-          success: false,
-          message:
-            "There was an error sending your message. Please try again later or reach out via an alternative method.",
-          debug: {
-            mailgunStatus: emailResponse.status,
-            mailgunError: errorBody,
-            mgDomainDefined: !!env.MAILGUN_DOMAIN,
-            mgApiKeyDefined: !!env.MAILGUN_API_KEY,
-            websiteEmailDefined: !!env.WEBSITE_EMAIL,
-            receiverEmailDefined: !!env.RECEIVER_EMAIL,
-          },
-        },
-        { status: 500 }
-      );
+      console.error("Mailgun error:", await emailResponse.text());
+      throw new Error("Mailgun API error");
     }
   } catch (error) {
+    console.error("Email sending error:", error);
     return Response.json(
       {
         success: false,
         message:
-          "There was an error sending your message. Please try again later or reach out via an alternative method.",
-        debug: {
-          error: error instanceof Error ? error.message : String(error),
-        },
+          "There was an error sending your message. Please try again later or reach out to me directly.",
       },
       { status: 500 }
     );
@@ -151,8 +106,7 @@ async function handleContactForm(
   return Response.json({
     success: true,
     message:
-      "Thanks for reaching out! We will get in contact with you as soon as possible.",
-    debug: { sheets: sheetsDebug },
+      "Thanks for reaching out! I'll get back to you as soon as possible.",
   });
 }
 
