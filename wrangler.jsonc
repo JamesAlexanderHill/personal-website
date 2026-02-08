@@ -12,20 +12,5 @@
     "MAILGUN_DOMAIN": "mg.jameshill.xyz",
     "GOOGLE_SERVICE_ACCOUNT_EMAIL": "contact-form@personal-website-486812.iam.gserviceaccount.com",
     "GOOGLE_SPREADSHEET_ID": "1X837GYS9qwYnayfGjzuY0gp4_vW1zDIPzHkgn1OQOXE"
-  },
-  "observability": {
-    "enabled": true,
-    "head_sampling_rate": 1,
-    "logs": {
-      "enabled": true,
-      "head_sampling_rate": 1,
-      "persist": true,
-      "invocation_logs": true
-    },
-    "traces": {
-      "enabled": false,
-      "persist": true,
-      "head_sampling_rate": 1
-    }
   }
 }
